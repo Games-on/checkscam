@@ -1,10 +1,13 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
 use scamdb;
 
 -- Bảng users: Lưu thông tin người dùng
 CREATE TABLE users (
                        id INT PRIMARY KEY AUTO_INCREMENT, -- Khóa chính, tự động tăng
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời điểm tạo bản ghi, mặc định là thời điểm hiện tại
-                       full_name VARCHAR(255) NOT NULL, -- Họ và tên người dùng, không được phép NULL
+                       name VARCHAR(255) NOT NULL, -- Họ và tên người dùng, không được phép NULL
+                        email VARCHAR(255) NOT NULL,
                        password VARCHAR(255) NOT NULL, -- Mật khẩu người dùng, không được phép NULL
                        is_active BOOLEAN DEFAULT TRUE -- Trạng thái hoạt động của người dùng, mặc định là TRUE
 );
