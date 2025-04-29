@@ -1,4 +1,4 @@
-package com.example.checkscam.domain;
+package com.example.checkscam.entity;
 
 
 import jakarta.persistence.Entity;
