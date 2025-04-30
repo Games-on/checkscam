@@ -9,4 +9,16 @@
     <changeSet id="20250429-001" author="tientm">
         <sqlFile path="db/sql/20250429_init_db.sql"/>
     </changeSet>
+<!--    <changeSet id="20250429-001" author="games-on">-->
+<!--        <sqlFile path="db/sql/init_db.sql"/>-->
+<!--    </changeSet>-->
+    <changeSet id="20250429-001" author="games-on">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="users" columnName="created_at"/>
+            <columnExists tableName="users" columnName="is_active"/>
+        </preConditions>
+        <dropColumn tableName="users" columnName="created_at"/>
+        <dropColumn tableName="users" columnName="is_active"/>
+    </changeSet>
+
 </databaseChangeLog>
