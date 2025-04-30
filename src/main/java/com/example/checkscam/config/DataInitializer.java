@@ -19,7 +19,7 @@ public class DataInitializer {
         if (userRepository.count() == 0) {
             User defaultUser = new User();
             defaultUser.setName("Default Admin");
-            defaultUser.setEmail("admin@example.com");
+            defaultUser.setEmail("admin@gmail.com");
             defaultUser.setPassword(passwordEncoder.encode("123456"));
 
             userRepository.save(defaultUser);
