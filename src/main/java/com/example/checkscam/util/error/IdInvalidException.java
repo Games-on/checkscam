@@ -1,4 +1,4 @@
-package com.example.checkscam.service.error;
+package com.example.checkscam.util.error;
 
 public class IdInvalidException extends Exception {
     // Constructor that accepts a message
