@@ -43,7 +43,7 @@ public class UserController {
         }
 
         this.userService.handleDeleteUser(id);
-        return ResponseEntity.ok("ericUser");
+        return ResponseEntity.ok("checkscam");
         // return ResponseEntity.status(HttpStatus.OK).body("ericUser");
     }
 
