@@ -1,4 +1,4 @@
-package com.example.checkscam.domain.dto;
+package com.example.checkscam.dto;
 
 import javax.validation.constraints.NotBlank;
 

@@ -1,6 +1,7 @@
 package com.example.checkscam.config;
 
-import com.example.checkscam.domain.RestResponse;
+import com.example.checkscam.constant.ErrorCodeEnum;
+import com.example.checkscam.response.CheckScamResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import static com.example.checkscam.constant.ErrorCodeEnum.INVALID_REQUEST;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -27,20 +30,22 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
-        this.delegate.commence(request, response, authException);
+                         AuthenticationException authException) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
         response.setContentType("application/json;charset=UTF-8");
 
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.UNAUTHORIZED.value());
-
-        String errorMessage = Optional.ofNullable(authException.getCause()) // NULL
+        // Tạo thông báo lỗi từ nguyên nhân gốc nếu có
+        String errorMessage = Optional.ofNullable(authException.getCause())
                 .map(Throwable::getMessage)
                 .orElse(authException.getMessage());
-        res.setError(errorMessage);
 
-        res.setMessage("Token không hợp lệ (hết hạn, không đúng định dạng, hoặc không truyền JWT ở header)...");
+        // Tạo response trả về dạng JSON sử dụng class CheckScamResponse
+        CheckScamResponse<Object> res = new CheckScamResponse<>(
+                ErrorCodeEnum.UNAUTHORIZED  // dùng enum để lấy code và message
+        );
 
+        // Ghi response ra output
         mapper.writeValue(response.getWriter(), res);
     }
+
 }

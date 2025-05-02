@@ -1,6 +1,6 @@
 package com.example.checkscam.repository;
 
-import com.example.checkscam.domain.User;
+import com.example.checkscam.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
