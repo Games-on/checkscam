@@ -1,6 +1,6 @@
 package com.example.checkscam.config;
 
-import com.example.checkscam.domain.User;
+import com.example.checkscam.entity.User;
 import com.example.checkscam.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

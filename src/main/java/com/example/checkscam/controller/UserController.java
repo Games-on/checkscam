@@ -1,6 +1,7 @@
 package com.example.checkscam.controller;
 
-import com.example.checkscam.domain.User;
+import com.example.checkscam.entity.User;
+import com.example.checkscam.response.CheckScamResponse;
 import com.example.checkscam.service.UserService;
 import com.example.checkscam.util.error.IdInvalidException;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
 
@@ -21,8 +23,7 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-
-    @PostMapping("/users")
+    @PostMapping()
     public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
         String hashPassword = this.passwordEncoder.encode(postManUser.getPassword());
         postManUser.setPassword(hashPassword);
@@ -35,7 +36,7 @@ public class UserController {
         return ResponseEntity.badRequest().body(idException.getMessage());
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable("id") long id)
             throws IdInvalidException {
         if (id >= 1500) {
@@ -48,21 +49,19 @@ public class UserController {
     }
 
     // fetch user by id
-    @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") long id) {
-        User fetchUser = this.userService.fetchUserById(id);
-        // return ResponseEntity.ok(fetchUser);
-        return ResponseEntity.status(HttpStatus.OK).body(fetchUser);
+    @GetMapping("/{id}")
+    public CheckScamResponse<User> getUserById(@PathVariable("id") long id) {
+        return new CheckScamResponse<>(this.userService.fetchUserById(id));
     }
 
     // fetch all users
-    @GetMapping("/users")
+    @GetMapping()
     public ResponseEntity<List<User>> getAllUser() {
         // return ResponseEntity.ok(this.userService.fetchAllUser());
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.fetchAllUser());
     }
 
-    @PutMapping("/users")
+    @PutMapping()
     public ResponseEntity<User> updateUser(@RequestBody User user) {
         User ericUser = this.userService.handleUpdateUser(user);
         return ResponseEntity.ok(ericUser);

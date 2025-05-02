@@ -1,6 +1,6 @@
 package com.example.checkscam.service;
 
-import com.example.checkscam.domain.User;
+import com.example.checkscam.entity.User;
 import com.example.checkscam.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

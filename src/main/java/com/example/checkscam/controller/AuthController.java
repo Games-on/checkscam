@@ -1,7 +1,7 @@
 package com.example.checkscam.controller;
 
-import com.example.checkscam.domain.dto.LoginDTO;
-import com.example.checkscam.domain.dto.ResLoginDTO;
+import com.example.checkscam.dto.LoginDTO;
+import com.example.checkscam.dto.ResLoginDTO;
 import com.example.checkscam.util.SecurityUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
