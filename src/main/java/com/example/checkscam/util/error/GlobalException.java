@@ -1,49 +1,68 @@
 package com.example.checkscam.util.error;
 
-
-import com.example.checkscam.domain.RestResponse;
+import com.example.checkscam.constant.ErrorCodeEnum;
+import com.example.checkscam.response.CheckScamResponse;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalException {
-    @ExceptionHandler(value = { // hung exception
+
+    @ExceptionHandler({
             IdInvalidException.class,
             UsernameNotFoundException.class,
             BadCredentialsException.class
     })
-    public ResponseEntity<RestResponse<Object>> handleIdException(IdInvalidException idException) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-//        res.setError(idException.getMessage());
-        res.setError(idException.getMessage());
-        res.setMessage("Exception occurs...");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    public ResponseEntity<CheckScamResponse<Object>> handleAuthExceptions(RuntimeException ex) {
+        CheckScamResponse<Object> res = new CheckScamResponse<>(ErrorCodeEnum.INVALID_REQUEST);
+        res.setMessage(ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(res);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<RestResponse<Object>> validationError(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
-        final List<FieldError> fieldErrors = result.getFieldErrors();
+    public ResponseEntity<CheckScamResponse<Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
+        BindingResult bindingResult = ex.getBindingResult();
+        List<String> errors = bindingResult.getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
 
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-        res.setError(ex.getBody().getDetail());
+        CheckScamResponse<Object> res = new CheckScamResponse<>(ErrorCodeEnum.BAD_REQUEST);
+        res.setMessage(errors.size() > 1 ? errors.toString() : errors.get(0));
 
-        List<String> errors = fieldErrors.stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList()); // array chứa message lỗi
-        res.setMessage(errors.size() > 1 ? errors : errors.get(0)); // nếu size > 1 thi ném ra array, size = 1 nem ra string
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(res);
+    }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<CheckScamResponse<Object>> handleConstraintViolation(ConstraintViolationException ex) {
+        CheckScamResponse<Object> res = new CheckScamResponse<>(ErrorCodeEnum.BAD_REQUEST);
+        res.setMessage(ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(res);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<CheckScamResponse<Object>> handleGenericException(Exception ex) {
+        CheckScamResponse<Object> res = new CheckScamResponse<>(ErrorCodeEnum.INTERNAL_ERROR);
+        res.setMessage(ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(res);
     }
 }

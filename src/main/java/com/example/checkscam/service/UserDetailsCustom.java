@@ -20,7 +20,7 @@ public class UserDetailsCustom implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        com.example.checkscam.domain.User user = this.userService.handleGetUserByUsername(username);
+        com.example.checkscam.entity.User user = this.userService.handleGetUserByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("Username/password không hợp lệ");
         }
