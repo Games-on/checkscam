@@ -3,38 +3,51 @@ package com.example.checkscam.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "reports")
+@Table(name = "report",
+        indexes = {
+                @Index(name = "idx_report_bank_scam", columnList = "bank_scam_id"),
+                @Index(name = "idx_report_phone_scam", columnList = "phone_scam_id"),
+                @Index(name = "idx_report_url_scam", columnList = "url_scam_id")
+        })
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Report extends BaseEntity{
-    @Column(name = "created_by")
-    private Integer createdBy;
+@AllArgsConstructor
+public class Report extends BaseEntity {
 
+    @Column(columnDefinition = "text")
     private String info;
 
+    @Column(columnDefinition = "text")
     private String description;
 
-    @Column(name = "news_id")
-    private Integer newsId;
+    private Integer status;                 // tuỳ enum
 
-    private Integer status;
+    @Column(name = "email_author_report")
+    private String emailAuthorReport;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL)
-    private List<ReportUrlScam> reportUrlScams;
+    @Column(name = "date_report")
+    private LocalDateTime dateReport;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL)
-    private List<ReportPhoneScam> reportPhoneScams;
+    /* --- Liên kết N‑1 tuỳ chọn --- */
+    @ManyToOne
+    @JoinColumn(name = "phone_scam_id")
+    private PhoneScam phoneScam;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL)
-    private List<ReportBankScam> reportBankScams;
+    @ManyToOne
+    @JoinColumn(name = "bank_scam_id")
+    private BankScam bankScam;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "url_scam_id")
+    private UrlScam urlScam;
+
+    /* attachments */
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments;
 }
 
