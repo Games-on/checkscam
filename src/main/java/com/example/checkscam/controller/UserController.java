@@ -3,7 +3,7 @@ package com.example.checkscam.controller;
 import com.example.checkscam.entity.User;
 import com.example.checkscam.response.CheckScamResponse;
 import com.example.checkscam.service.UserService;
-import com.example.checkscam.util.error.IdInvalidException;
+import com.example.checkscam.exception.IdInvalidException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -61,7 +61,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.fetchAllUser());
     }
 
-    @PutMapping()
+    @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@RequestBody User user) {
         User ericUser = this.userService.handleUpdateUser(user);
         return ResponseEntity.ok(ericUser);
