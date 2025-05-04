@@ -1,6 +1,7 @@
 package com.example.checkscam.service.impl;
 
 import com.example.checkscam.repository.PhoneScamStatsRepository;
+import com.example.checkscam.repository.projection.PhoneScamStatsInfo;
 import com.example.checkscam.service.PhoneScamStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,4 +10,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PhoneScamStatsServiceImpl implements PhoneScamStatsService {
     private final PhoneScamStatsRepository repository;
+
+    @Override
+    public PhoneScamStatsInfo getPhoneScamStatsInfo(String phoneNumber) {
+        return repository.findByPhoneNumber(phoneNumber);
+    }
 }

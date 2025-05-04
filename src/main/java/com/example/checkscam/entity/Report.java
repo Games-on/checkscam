@@ -25,15 +25,21 @@ public class Report extends BaseEntity {
     @Column(columnDefinition = "text")
     private String description;
 
-    private Integer status;                 // tuỳ enum
+    @Column(name = "status")
+    private Integer status;
 
     @Column(name = "email_author_report")
     private String emailAuthorReport;
 
+    @Column(name = "reason")
+    private String reason;
+
+    @Column(name = "info_description")
+    private String infoDescription;
+
     @Column(name = "date_report")
     private LocalDateTime dateReport;
 
-    /* --- Liên kết N‑1 tuỳ chọn --- */
     @ManyToOne
     @JoinColumn(name = "phone_scam_id")
     private PhoneScam phoneScam;
@@ -46,7 +52,6 @@ public class Report extends BaseEntity {
     @JoinColumn(name = "url_scam_id")
     private UrlScam urlScam;
 
-    /* attachments */
     @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments;
 }

@@ -1,4 +1,4 @@
-package com.example.checkscam.controller;
+package com.example.checkscam.rest;
 
 import com.example.checkscam.dto.LoginDTO;
 import com.example.checkscam.dto.ResLoginDTO;
@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-public class AuthController {
+public class RestAuthController {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil) {
+    public RestAuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
     }
