@@ -1,4 +1,4 @@
-package com.example.checkscam.controller;
+package com.example.checkscam.rest;
 
 import com.example.checkscam.entity.User;
 import com.example.checkscam.response.CheckScamResponse;
@@ -13,12 +13,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
-public class UserController {
+public class RestUserController {
     private final UserService userService;
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public RestUserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }

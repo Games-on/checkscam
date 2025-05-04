@@ -8,8 +8,8 @@ DROP TABLE info_scam;
 
 ALTER TABLE report
 ADD COLUMN status int,
-ADD COLUMN info_description varchar(255) NOT NULL,
-ADD COLUMN reason int;
+ADD COLUMN info_description varchar(255),
+ADD COLUMN reason varchar(255);
 
 ALTER TABLE report
 DROP FOREIGN KEY report_ibfk_2;
