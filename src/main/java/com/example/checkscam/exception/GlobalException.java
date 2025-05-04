@@ -1,4 +1,4 @@
-package com.example.checkscam.util.error;
+package com.example.checkscam.exception;
 
 import com.example.checkscam.constant.ErrorCodeEnum;
 import com.example.checkscam.response.CheckScamResponse;

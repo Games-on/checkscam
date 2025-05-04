@@ -4,24 +4,24 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "attachments")
+@Table(name = "attachments",
+        indexes = @Index(name = "report_id", columnList = "report_id"))
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class Attachment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Attachment extends BaseEntity {
 
+    @Column(columnDefinition = "text", nullable = false)
     private String url;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
     private Report report;
 
-    @Column(name = "news_id")
-    private Long newsId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "news_id")
+    private News news;
 }
 
