@@ -20,9 +20,10 @@
         <dropColumn tableName="users" columnName="created_at"/>
         <dropColumn tableName="users" columnName="is_active"/>
     </changeSet>
-
     <changeSet id="20250502-001" author="tientm">
         <sqlFile path="db/sql/20250502_alter_table.sql"/>
     </changeSet>
-
+    <changeSet id="20250504-001" author="tientm">
+        <sqlFile path="db/sql/20250504_alter_table_report.sql"/>
+    </changeSet>
 </databaseChangeLog>

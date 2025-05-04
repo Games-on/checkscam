@@ -3,22 +3,22 @@ package com.example.checkscam.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
-@Table(name = "url_scam")
+@Table(name = "url_scam",
+        indexes = @Index(name = "idx_url", columnList = "info"))
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class UrlScam {
-    @Id
-    private Integer id;
+public class UrlScam extends BaseEntity {
 
-    private String info;
+    @Column(name = "info", length = 512, nullable = false)
+    private String info;            // URL
+
+    @Column(columnDefinition = "text")
     private String description;
 
-    @OneToMany(mappedBy = "urlScam", cascade = CascadeType.ALL)
-    private List<ReportUrlScam> reportUrlScams;
+    @OneToOne(mappedBy = "urlScam", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private UrlScamStats stats;
 }

@@ -1,17 +1,23 @@
 package com.example.checkscam.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.List;
+import java.util.Set;
 
-@Table
-@Entity(name = "role")
-public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Entity
+@Table(name = "role",
+        uniqueConstraints = @UniqueConstraint(name = "name", columnNames = "name"))
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Role extends BaseEntity {
 
+    @Column(length = 50, nullable = false)
     private String name;
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    private List<UserRole> userRoles;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
 }

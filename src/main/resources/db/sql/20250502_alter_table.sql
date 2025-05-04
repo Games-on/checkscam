@@ -7,7 +7,9 @@ DROP COLUMN info_scam_id;
 DROP TABLE info_scam;
 
 ALTER TABLE report
-ADD COLUMN status int;
+ADD COLUMN status int,
+ADD COLUMN info_description varchar(255) NOT NULL,
+ADD COLUMN reason int,;
 
 ALTER TABLE report
 DROP FOREIGN KEY report_ibfk_2;
@@ -68,5 +70,7 @@ ALTER TABLE phone_scam_stats ADD INDEX idx_phone_cnt (verified_count DESC);
 ALTER TABLE phone_scam_stats ADD INDEX idx_phone_last (last_report_at DESC);
 
 ALTER TABLE bank_scam_stats  ADD INDEX idx_bank_cnt  (verified_count DESC);
+ALTER TABLE bank_scam_stats ADD INDEX idx_bank_last (last_report_at DESC);
 ALTER TABLE url_scam_stats   ADD INDEX idx_url_cnt   (verified_count DESC);
+ALTER TABLE url_scam_stats ADD INDEX idx_url_last (last_report_at DESC);
 
