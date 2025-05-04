@@ -21,4 +21,8 @@
         <dropColumn tableName="users" columnName="is_active"/>
     </changeSet>
 
+    <changeSet id="20250502-001" author="tientm">
+        <sqlFile path="db/sql/20250502_alter_table.sql"/>
+    </changeSet>
+
 </databaseChangeLog>

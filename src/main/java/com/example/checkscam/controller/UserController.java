@@ -61,7 +61,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.fetchAllUser());
     }
 
-    @PutMapping()
+    @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@RequestBody User user) {
         User ericUser = this.userService.handleUpdateUser(user);
         return ResponseEntity.ok(ericUser);
