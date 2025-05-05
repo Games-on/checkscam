@@ -1,5 +1,6 @@
 package com.example.checkscam.rest;
 
+import com.example.checkscam.dto.ResCreateUserDTO;
 import com.example.checkscam.entity.User;
 import com.example.checkscam.response.CheckScamResponse;
 import com.example.checkscam.service.UserService;
@@ -15,7 +16,6 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 public class RestUserController {
     private final UserService userService;
-
     private final PasswordEncoder passwordEncoder;
 
     public RestUserController(UserService userService, PasswordEncoder passwordEncoder) {
@@ -24,11 +24,10 @@ public class RestUserController {
     }
 
     @PostMapping()
-    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@RequestBody User postManUser) {
         String hashPassword = this.passwordEncoder.encode(postManUser.getPassword());
         postManUser.setPassword(hashPassword);
-        User ericUser = this.userService.handleCreateUser(postManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ericUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.handleCreateUser(postManUser));
     }
 
     @ExceptionHandler(value = IdInvalidException.class)

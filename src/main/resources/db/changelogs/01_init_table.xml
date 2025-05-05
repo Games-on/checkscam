@@ -9,9 +9,6 @@
     <changeSet id="20250429-001" author="tientm">
         <sqlFile path="db/sql/20250429_init_db.sql"/>
     </changeSet>
-<!--    <changeSet id="20250429-001" author="games-on">-->
-<!--        <sqlFile path="db/sql/init_db.sql"/>-->
-<!--    </changeSet>-->
     <changeSet id="20250429-001" author="games-on">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="users" columnName="created_at"/>
@@ -26,4 +23,8 @@
     <changeSet id="20250504-001" author="tientm">
         <sqlFile path="db/sql/20250504_alter_table_report.sql"/>
     </changeSet>
+    <changeSet id="20250505" author="games-on">
+        <sqlFile path="db/sql/20250505_refresh_token.sql"/>
+    </changeSet>
+
 </databaseChangeLog>

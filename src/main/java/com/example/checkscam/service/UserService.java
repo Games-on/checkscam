@@ -1,5 +1,6 @@
 package com.example.checkscam.service;
 
+import com.example.checkscam.dto.ResCreateUserDTO;
 import com.example.checkscam.entity.User;
 import com.example.checkscam.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,13 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User handleCreateUser(User user) {
-        return this.userRepository.save(user);
+    public ResCreateUserDTO handleCreateUser(User user) {
+        ResCreateUserDTO resCreateUserDTO = new ResCreateUserDTO();
+        user = userRepository.save(user);
+        resCreateUserDTO.setId(user.getId());
+        resCreateUserDTO.setEmail(user.getEmail());
+        resCreateUserDTO.setName(user.getName());
+        return resCreateUserDTO;
     }
 
     public void handleDeleteUser(long id) {
@@ -47,4 +53,13 @@ public class UserService {
     public User handleGetUserByUsername(String username) {
         return this.userRepository.findByEmail(username);
     }
+
+    public void updateUserToken(String token, String email) {
+        User currentUser = this.handleGetUserByUsername(email);
+        if (currentUser != null) {
+            currentUser.setRefreshToken(token);
+            this.userRepository.save(currentUser);
+        }
+    }
+
 }
