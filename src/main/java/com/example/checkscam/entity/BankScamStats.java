@@ -1,5 +1,8 @@
 package com.example.checkscam.entity;
 
+import com.example.checkscam.converter.ReasonsJsonDtoConverter;
+import com.example.checkscam.dto.ReasonsJsonDto;
+import com.example.checkscam.dto.ScamStatsDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,9 +34,17 @@ public class BankScamStats {
     @Column(name = "verified_count", nullable = false)
     private Integer verifiedCount = 0;
 
-    @Column(name = "reasons_json", columnDefinition = "json", nullable = false)
-    private String reasonsJson;
+    @Convert(converter = ReasonsJsonDtoConverter.class)
+    @Column(name = "reasons_json", columnDefinition = "json")
+    private ReasonsJsonDto reasonsJson;
 
     @Column(name = "last_report_at")
     private LocalDateTime lastReportAt;
+
+    public BankScamStats(ScamStatsDto stats) {
+        this.id = stats.getId();
+        this.verifiedCount = stats.getVerifiedCount();
+        this.reasonsJson = stats.getReasonsJson();
+        this.lastReportAt = stats.getLastReportAt();
+    }
 }

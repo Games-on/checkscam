@@ -26,4 +26,10 @@
     <changeSet id="20250504-001" author="tientm">
         <sqlFile path="db/sql/20250504_alter_table_report.sql"/>
     </changeSet>
+    <changeSet id="20250505-001" author="tientm">
+        <sqlFile path="db/sql/20250505_add_table_scam_type.sql"/>
+    </changeSet>
+    <changeSet id="20250505-002" author="tientm">
+        <sqlFile path="db/sql/20250505_alter_table_report.sql"/>
+    </changeSet>
 </databaseChangeLog>

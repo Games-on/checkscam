@@ -15,7 +15,7 @@ public class RestCheckScamController {
     private final CheckScamService checkScamService;
 
     @PostMapping
-    public CheckScamResponse<String> checkScam(@RequestBody @NotNull CheckScamRequestDto requestDto) {
+    public CheckScamResponse<Object> checkScam(@RequestBody @NotNull CheckScamRequestDto requestDto) {
         return new CheckScamResponse<>(this.checkScamService.checkScam(requestDto));
     }
 }
