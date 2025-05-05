@@ -8,6 +8,7 @@ import java.io.Serializable;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class BankScamDto {
     private Long id;
     private String bankAccount;

@@ -1,10 +1,9 @@
 package com.example.checkscam.repository;
 
-import com.example.checkscam.entity.UrlScam;
+import com.example.checkscam.entity.ScamTypes;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UrlScamRepository extends JpaRepository<UrlScam, Long> {
-    UrlScam findByInfo(String info);
+public interface ScamTypesRepository extends JpaRepository<ScamTypes, Long> {
 }

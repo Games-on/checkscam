@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PhoneScamRepository extends JpaRepository<PhoneScam, Long> {
+    PhoneScam findByPhoneNumber(String info);
 }

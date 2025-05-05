@@ -1,6 +1,6 @@
 package com.example.checkscam.dto.request;
 
-import com.example.checkscam.constant.ScamType;
+import com.example.checkscam.constant.ScamInfoType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ public class CheckScamRequestDto {
     @NotBlank
     private Integer type;
 
-    public ScamType getType() {
-        return ScamType.parse(type);
+    public ScamInfoType getType() {
+        return ScamInfoType.parse(type);
     }
 }

@@ -7,12 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "report",
-        indexes = {
-                @Index(name = "idx_report_bank_scam", columnList = "bank_scam_id"),
-                @Index(name = "idx_report_phone_scam", columnList = "phone_scam_id"),
-                @Index(name = "idx_report_url_scam", columnList = "url_scam_id")
-        })
+@Table(name = "report")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,6 +23,12 @@ public class Report extends BaseEntity {
     @Column(name = "status")
     private Integer status;
 
+    @Column(name = "type")
+    private Integer type;
+
+    @Column(name = "id_scam_type_before_handle")
+    private Integer idScamTypeAfterHandle;
+
     @Column(name = "email_author_report")
     private String emailAuthorReport;
 
@@ -39,18 +40,6 @@ public class Report extends BaseEntity {
 
     @Column(name = "date_report")
     private LocalDateTime dateReport;
-
-    @ManyToOne
-    @JoinColumn(name = "phone_scam_id")
-    private PhoneScam phoneScam;
-
-    @ManyToOne
-    @JoinColumn(name = "bank_scam_id")
-    private BankScam bankScam;
-
-    @ManyToOne
-    @JoinColumn(name = "url_scam_id")
-    private UrlScam urlScam;
 
     @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments;
