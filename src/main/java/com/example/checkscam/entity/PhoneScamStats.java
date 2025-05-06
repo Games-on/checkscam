@@ -46,4 +46,10 @@ public class PhoneScamStats {
         this.reasonsJson = stats.getReasonsJson();
         this.lastReportAt = stats.getLastReportAt();
     }
+
+    public void apply(ScamStatsDto dto) {
+        this.verifiedCount   = dto.getVerifiedCount();
+        this.lastReportAt   = dto.getLastReportAt();
+        this.reasonsJson    = dto.getReasonsJson();
+    }
 }

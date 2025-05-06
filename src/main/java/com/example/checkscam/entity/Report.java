@@ -27,7 +27,7 @@ public class Report extends BaseEntity {
     private Integer type;
 
     @Column(name = "id_scam_type_before_handle")
-    private Integer idScamTypeAfterHandle;
+    private Long idScamTypeAfterHandle;
 
     @Column(name = "email_author_report")
     private String emailAuthorReport;

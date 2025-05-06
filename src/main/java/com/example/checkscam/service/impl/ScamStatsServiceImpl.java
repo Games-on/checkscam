@@ -1,8 +1,7 @@
 package com.example.checkscam.service.impl;
 
 import com.example.checkscam.constant.ErrorCodeEnum;
-import com.example.checkscam.dto.ReasonsJsonDto;
-import com.example.checkscam.dto.ScamStatsDto;
+import com.example.checkscam.dto.*;
 import com.example.checkscam.entity.Report;
 import com.example.checkscam.entity.ScamTypes;
 import com.example.checkscam.exception.CheckScamException;
@@ -17,7 +16,9 @@ import com.example.checkscam.service.ScamStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,52 +29,74 @@ public class ScamStatsServiceImpl implements ScamStatsService {
     private final ScamTypesRepository scamTypesRepository;
 
     @Override
-    public BankScamStatsInfo getBankScamStatsInfo(String bankAccount) {
+    public BankScamStatsInfoDto getBankScamStatsInfo(String bankAccount) {
         return bankRepository.findByBankAccount(bankAccount);
     }
 
     @Override
-    public PhoneScamStatsInfo getPhoneScamStatsInfo(String phoneNumber) {
+    public PhoneScamStatsInfoDto getPhoneScamStatsInfo(String phoneNumber) {
         return phoneRepository.findByPhoneNumber(phoneNumber);
     }
 
     @Override
-    public UrlScamStatsInfo getUrlScamStatsInfo(String url) {
+    public UrlScamStatsInfoDto getUrlScamStatsInfo(String url) {
         return urlRepository.findByUrlScam(url);
     }
 
     @Override
-    public ScamStatsDto handleStats(ScamStatsDto stats, Report report, Long idScamType) throws CheckScamException {
-        stats.setVerifiedCount(stats.getVerifiedCount() + 1);
+    public List<PhoneScamStatsInfo> getPhoneScamStatsInfoList() {
+        return phoneRepository.getTopScamPhone();
+    }
+
+    @Override
+    public List<UrlScamStatsInfo> getUrlScamStatsInfoList() {
+        return urlRepository.getTopScamUrl();
+    }
+
+    @Override
+    public List<BankScamStatsInfo> getBankScamStatsInfoList() {
+        return bankRepository.getTopScamBank();
+    }
+
+    @Override
+    public ScamStatsDto handleStats(ScamStatsDto stats, Report report, Long idScamType)
+            throws CheckScamException {
+
+        if (stats == null) {
+            stats = new ScamStatsDto();
+        }
+
+        int verified = Optional.ofNullable(stats.getVerifiedCount()).orElse(0);
+        stats.setVerifiedCount(verified + 1);
+
         stats.setLastReportAt(report.getDateReport());
-        ReasonsJsonDto reasonsJsonDto = stats.getReasonsJson();
+
         ScamTypes scamType = scamTypesRepository.findById(idScamType).orElseThrow(
                 () -> new CheckScamException(ErrorCodeEnum.NOT_FOUND)
         );
-        if (reasonsJsonDto == null) {
-            reasonsJsonDto = new ReasonsJsonDto();
-            ReasonsJsonDto.Reason reason = new ReasonsJsonDto.Reason();
+
+        ReasonsJsonDto reasonsJson = Optional.ofNullable(stats.getReasonsJson())
+                .orElseGet(ReasonsJsonDto::new);
+        List<ReasonsJsonDto.Reason> reasons = Optional.ofNullable(reasonsJson.getReasons())
+                .orElseGet(ArrayList::new);
+
+        ReasonsJsonDto.Reason reason = reasons.stream()
+                .filter(r -> r.isExitByName(scamType.getName()))
+                .findFirst()
+                .orElse(null);
+        if (reason == null) {
+            reason = new ReasonsJsonDto.Reason();
             reason.setName(scamType.getName());
             reason.setQuantity(1);
-            reasonsJsonDto.setReasons(List.of(reason));
-        }else {
-            List<ReasonsJsonDto.Reason> reasons = reasonsJsonDto.getReasons();
-            boolean found = false;
-            for (ReasonsJsonDto.Reason reason : reasons) {
-                if (reason.isExitByName(scamType.getName())) {
-                    reason.setQuantity(reason.getQuantity() + 1);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                ReasonsJsonDto.Reason reason = new ReasonsJsonDto.Reason();
-                reason.setName(scamType.getName());
-                reason.setQuantity(1);
-                reasons.add(reason);
-            }
+            reasons.add(reason);
+        } else {
+            reason.setQuantity(reason.getQuantity() + 1);
         }
-        stats.setReasonsJson(reasonsJsonDto);
+
+        reasonsJson.setReasons(reasons);
+        stats.setReasonsJson(reasonsJson);
+
         return stats;
     }
+
 }

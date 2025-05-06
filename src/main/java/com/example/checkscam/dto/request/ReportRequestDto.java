@@ -16,6 +16,10 @@ public class ReportRequestDto {
     private String info;
     private String description;
     private Integer status;
+    private Integer type;
+    private Integer idScamTypeAfterHandle;
     private String emailAuthorReport;
+    private String reason;
+    private String infoDescription;
     private LocalDateTime dateReport;
 }

@@ -47,4 +47,10 @@ public class BankScamStats {
         this.reasonsJson = stats.getReasonsJson();
         this.lastReportAt = stats.getLastReportAt();
     }
+
+    public void apply(ScamStatsDto stats) {
+        this.verifiedCount = stats.getVerifiedCount();
+        this.reasonsJson = stats.getReasonsJson();
+        this.lastReportAt = stats.getLastReportAt();
+    }
 }
