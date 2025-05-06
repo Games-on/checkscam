@@ -20,6 +20,9 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String refreshToken;
+
     @Column(nullable = false)
     private String password;
 
