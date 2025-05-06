@@ -3,7 +3,6 @@ package com.example.checkscam.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -15,11 +14,14 @@ import java.util.List;
 @Builder
 public class News extends BaseEntity {
 
-    @Column(columnDefinition = "text", nullable = false)
-    private String url;
+    @Column(nullable = false)
+    private String name;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(columnDefinition = "TEXT")
+    private String shortDescription;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @OneToMany(mappedBy = "news")
     private List<Attachment> attachments;

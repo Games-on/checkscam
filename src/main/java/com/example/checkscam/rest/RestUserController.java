@@ -36,15 +36,9 @@ public class RestUserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") long id)
-            throws IdInvalidException {
-        if (id >= 1500) {
-            throw new IdInvalidException("Id khong lon hown 1501");
-        }
-
+    public ResponseEntity<String> deleteUser(@PathVariable("id") long id) {
         this.userService.handleDeleteUser(id);
-        return ResponseEntity.ok("checkscam");
-        // return ResponseEntity.status(HttpStatus.OK).body("ericUser");
+        return ResponseEntity.ok("User deleted successfully");
     }
 
     // fetch user by id
