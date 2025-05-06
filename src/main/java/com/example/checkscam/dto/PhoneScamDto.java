@@ -1,9 +1,6 @@
 package com.example.checkscam.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -11,6 +8,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
 public class PhoneScamDto {
     private Long id;
     private String phoneNumber;

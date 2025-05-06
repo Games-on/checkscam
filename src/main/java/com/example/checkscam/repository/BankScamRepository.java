@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BankScamRepository extends JpaRepository<BankScam, Long> {
+    BankScam findByBankAccount(String bankAccount);
 }
