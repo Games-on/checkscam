@@ -17,6 +17,12 @@ public class Report extends BaseEntity {
     @Column(columnDefinition = "text")
     private String info;
 
+    @Column(name = "info_2")
+    private String info2; // tên chủ tài khoản ( nếu báo cáo stk )
+
+    @Column(name = "info_3")
+    private String info3; // tên ngân hàng ( nếu báo cáo tk)
+
     @Column(columnDefinition = "text")
     private String description;
 
