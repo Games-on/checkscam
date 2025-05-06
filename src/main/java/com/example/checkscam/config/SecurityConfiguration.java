@@ -10,6 +10,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,9 +23,13 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -44,7 +49,7 @@ public class SecurityConfiguration {
             CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+//                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(
                         authz -> authz
                                 .requestMatchers("/**", "api/v1/auth/login")
@@ -56,7 +61,20 @@ public class SecurityConfiguration {
 //                                        exceptions -> exceptions
 //                                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) // 401
 //                                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) // 403
-
+                .cors(new Customizer<CorsConfigurer<HttpSecurity>>() {
+                    @Override
+                    public void customize(CorsConfigurer<HttpSecurity> httpSecurityCorsConfigurer) {
+                        CorsConfiguration configuration = new CorsConfiguration();
+                        configuration.setAllowedOrigins(List.of("*"));
+                        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+                        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                        configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
+                        configuration.setExposedHeaders(List.of("x-auth-token"));
+                        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                        source.registerCorsConfiguration("/**", configuration);
+                        httpSecurityCorsConfigurer.configurationSource(source);
+                    }
+                })
                 .formLogin((AbstractHttpConfigurer::disable))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

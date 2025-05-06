@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -36,14 +38,16 @@ public class RestUserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") long id)
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long id)
             throws IdInvalidException {
         if (id >= 1500) {
             throw new IdInvalidException("Id khong lon hown 1501");
         }
 
         this.userService.handleDeleteUser(id);
-        return ResponseEntity.ok("checkscam");
+        Map<String, String> response = new HashMap<>();
+        response.put("message","Delete user successfully");
+        return ResponseEntity.ok(response);
         // return ResponseEntity.status(HttpStatus.OK).body("ericUser");
     }
 
