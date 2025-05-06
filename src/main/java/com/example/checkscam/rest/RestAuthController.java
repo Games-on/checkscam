@@ -24,7 +24,7 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth")
 public class RestAuthController {
         private final AuthenticationManagerBuilder authenticationManagerBuilder;
         private final UserService userService;
