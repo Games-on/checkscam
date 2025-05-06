@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class HandleReportRequestDto {
     private Long idReport;
     private Integer status;
-    private Long idScamType;
+    private Long idScamTypeAfterHandle;
 }

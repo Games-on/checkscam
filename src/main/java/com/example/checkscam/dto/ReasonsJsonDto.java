@@ -1,23 +1,14 @@
 package com.example.checkscam.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class ReasonsJsonDto {
     private List<Reason> reasons;
 
-    @Setter
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Data
     public static class Reason{
         private String name;
         private Integer quantity;

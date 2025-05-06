@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ScamStatsDto {
     private  Long id;
+    private  String info;
     private  Integer verifiedCount;
     private  ReasonsJsonDto reasonsJson;
     private  LocalDateTime lastReportAt;

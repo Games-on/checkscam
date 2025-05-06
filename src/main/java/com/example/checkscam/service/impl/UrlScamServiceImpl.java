@@ -5,6 +5,7 @@ import com.example.checkscam.dto.UrlScamDto;
 import com.example.checkscam.entity.*;
 import com.example.checkscam.exception.CheckScamException;
 import com.example.checkscam.repository.UrlScamRepository;
+import com.example.checkscam.repository.UrlScamStatsRepository;
 import com.example.checkscam.service.ScamStatsService;
 import com.example.checkscam.service.UrlScamService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class UrlScamServiceImpl implements UrlScamService {
     private final UrlScamRepository repository;
     private final ScamStatsService scamStatsService;
+    private final UrlScamStatsRepository urlScamStatsRepository;
 
     @Override
     public void handleAfterReport(Report report, Long idScamType) throws CheckScamException {

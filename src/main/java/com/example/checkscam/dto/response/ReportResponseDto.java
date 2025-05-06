@@ -20,10 +20,11 @@ public class ReportResponseDto {
     private String info;
     private String description;
     private Integer status;
+    private Integer type;
+    private Integer idScamTypeAfterHandle;
     private String emailAuthorReport;
+    private String reason;
+    private String infoDescription;
     private LocalDateTime dateReport;
-    private PhoneScamDto phoneScamDto;
-    private BankScamDto bankScamDto;
-    private UrlScamDto urlScamDto;
     private AttachmentDto attachmentDto;
 }
