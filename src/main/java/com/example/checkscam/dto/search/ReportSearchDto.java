@@ -1,19 +1,13 @@
-package com.example.checkscam.dto;
+package com.example.checkscam.dto.search;
 
-import com.example.checkscam.entity.AttachmentDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @Getter
-@Setter
-@NoArgsConstructor
-public class ReportDto {
+@AllArgsConstructor
+public class ReportSearchDto extends SearchDto {
     private Long id;
     private String info;
     private String description;
@@ -24,5 +18,4 @@ public class ReportDto {
     private String reason;
     private String infoDescription;
     private LocalDateTime dateReport;
-    private AttachmentDto attachmentDto;
 }
