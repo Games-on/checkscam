@@ -85,26 +85,24 @@ public class RestAuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
-        Optional<String> emailOptional = SecurityUtil.getCurrentUserLogin();
-        if (emailOptional.isPresent()) {
-            String email = emailOptional.get();
-            // update refresh token = null
-            this.userService.updateUserToken(null, email);
-        } else {
-            // Người dùng không đăng nhập, nhưng vẫn muốn xóa cookie
-            // Có thể trả về OK hoặc một mã trạng thái khác tùy theo yêu cầu của bạn
-            // Ví dụ: 200 OK với thông báo
+    public ResponseEntity<Void> logout() throws IdInvalidException {
+        String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
+
+        if (email.isEmpty()) {
+            throw new IdInvalidException("Access Token không hợp lệ");
         }
 
+        // update refresh token = null
+        this.userService.updateUserToken(null, email);
+
         // remove refresh token cookie
-        ResponseCookie deleteSpringCookie = ResponseCookie
-                .from("refresh_token", null)
+        ResponseCookie deleteSpringCookie = ResponseCookie.from("refresh_token", null)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(0)
                 .build();
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, deleteSpringCookie.toString())
                 .body(null);

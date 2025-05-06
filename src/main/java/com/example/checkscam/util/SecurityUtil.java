@@ -85,18 +85,20 @@ public class SecurityUtil {
 
     public static Optional<String> getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication authentication = securityContext.getAuthentication();
-        if (authentication != null) {
-            if (authentication.getPrincipal() instanceof UserDetails) {
-                UserDetails springUser = (UserDetails) authentication.getPrincipal();
-                String userName = springUser.getUsername();
-                return Optional.of(userName);
-            } else if (authentication.getPrincipal() instanceof String) {
-                String userName = (String) authentication.getPrincipal();
-                return Optional.of(userName);
-            }
+        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+    }
+
+    private static String extractPrincipal(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
+            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getSubject();
+        } else if (authentication.getPrincipal() instanceof String s) {
+            return s;
         }
-        return Optional.empty();
+        return null;
     }
 
 
