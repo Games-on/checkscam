@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 public class DataUtil {
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -48,15 +49,24 @@ public class DataUtil {
         if (url == null || url.trim().isEmpty()) {
             return null;
         }
+
         try {
-            if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ftp://")) {
+            // Thêm scheme nếu thiếu
+            if (!url.matches("^(?i)(http|https|ftp)://.*")) {
                 url = "http://" + url;
             }
 
-            URI uri = new URI(url);
-            return uri.getHost();
-        } catch (URISyntaxException e) {
+            URL parsedUrl = new URL(url);
+            String host = parsedUrl.getHost();
+
+            if (host != null && host.startsWith("www.")) {
+                host = host.substring(4); // Bỏ "www." nếu muốn
+            }
+
+            return host;
+        } catch (Exception e) {
             return null;
         }
     }
+
 }

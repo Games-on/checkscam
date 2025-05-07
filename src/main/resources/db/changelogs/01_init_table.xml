@@ -32,6 +32,9 @@
     <changeSet id="20250505" author="games-on">
         <sqlFile path="db/sql/20250505_refresh_token.sql"/>
     </changeSet>
+    <changeSet id="20250506-001" author="tientm">
+        <sqlFile path="db/sql/20250506_alter_table_bank_scam.sql"/>
+    </changeSet>
     <changeSet id="20250506" author="games-on">
         <sqlFile path="db/sql/20250506_change_news.sql"/>
     </changeSet>
