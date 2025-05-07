@@ -106,6 +106,9 @@ public class ReportServiceImpl implements ReportService {
         log.info("Handle report with id {}", requestDto.getIdReport());
         Report report = repository.findById(requestDto.getIdReport()).orElseThrow(
                 () -> new CheckScamException(ErrorCodeEnum.NOT_FOUND));
+        if (!StatusReportEnum.PENDING.getType().equals(report.getStatus())) {
+            throw new RuntimeException("Chỉ xử lý báo cáo có trạng thái PENDING");
+        }
         report.setStatus(requestDto.getStatus());
         report.setIdScamTypeAfterHandle(requestDto.getIdScamTypeAfterHandle());
 
