@@ -6,14 +6,12 @@ import com.example.checkscam.dto.request.HandleReportRequestDto;
 import com.example.checkscam.dto.request.ReportRequestDto;
 import com.example.checkscam.dto.response.ReportResponseDto;
 import com.example.checkscam.entity.Attachment;
-import com.example.checkscam.exception.CheckScamException;
-import com.example.checkscam.exception.DataNotFoundException;
-import com.example.checkscam.exception.FileUploadValidationException;
-import com.example.checkscam.exception.InvalidParamException;
+import com.example.checkscam.exception.*;
 import com.example.checkscam.repository.projection.ReportInfo;
 import com.example.checkscam.response.CheckScamResponse;
 import com.example.checkscam.response.ResponseObject;
 import com.example.checkscam.service.ReportService;
+import com.example.checkscam.service.impl.CaptchaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -32,9 +30,14 @@ import java.util.List;
 public class RestReportController {
     private final ReportService reportService;
     private final LocalizationUtils localizationUtils;
+    private final CaptchaService captchaService;
 
     @PostMapping
     public CheckScamResponse<ReportResponseDto> createReport(@RequestBody ReportRequestDto request) {
+        boolean valid = captchaService.verify(request.getCaptchaToken());
+        if (!valid) {
+            throw new InvalidCaptchaException();
+        }
         return new CheckScamResponse<>(reportService.createReport(request));
     }
 
