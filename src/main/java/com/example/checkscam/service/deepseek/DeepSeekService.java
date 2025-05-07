@@ -1,18 +1,21 @@
 package com.example.checkscam.service.deepseek;
 
-import com.example.checkscam.dto.request.DeepSeekRequest;
-import com.example.checkscam.dto.response.DeepSeekResponse;
+import com.example.checkscam.dto.request.OpenRouterRequest;
+import com.example.checkscam.dto.response.OpenRouterResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Slf4j
 public class DeepSeekService {
-    @Value("${deepseek.api.url}") // https://api.deepseek.com/v1/chat/completions
+    @Value("${deepseek.api.url}")
     private String apiUrl;
 
-    @Value("${deepseek.api.key}") // API Key (nếu có)
+    @Value("${deepseek.api.key}")
     private String apiKey;
 
     private final RestTemplate restTemplate;
@@ -21,21 +24,28 @@ public class DeepSeekService {
         this.restTemplate = restTemplate;
     }
 
-    public DeepSeekResponse generateText(DeepSeekRequest request) {
+    public OpenRouterResponse chatCompletions(OpenRouterRequest request) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-//        headers.set("Authorization", "Bearer " + apiKey);
+        if (!ObjectUtils.isEmpty(apiKey)) {
+            headers.set("Authorization", "Bearer " + apiKey);
+        } else {
+            log.error("OpenRouter API Key is not configured!");
+        }
+        HttpEntity<OpenRouterRequest> entity = new HttpEntity<>(request, headers);
 
-        HttpEntity<DeepSeekRequest> entity = new HttpEntity<>(request, headers);
-
-        ResponseEntity<DeepSeekResponse> response =
-                restTemplate.exchange(
-                        apiUrl,
-                        HttpMethod.POST,
-                        entity,
-                        DeepSeekResponse.class
-                );
-
-        return response.getBody();
+        try {
+            ResponseEntity<OpenRouterResponse> response =
+                    restTemplate.exchange(
+                            apiUrl,
+                            HttpMethod.POST,
+                            entity,
+                            OpenRouterResponse.class
+                    );
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Error calling OpenRouter API: {}", e.getMessage());
+        }
+        return null;
     }
 }
