@@ -9,7 +9,6 @@ import com.example.checkscam.repository.UrlScamRepository;
 import com.example.checkscam.repository.UrlScamStatsRepository;
 import com.example.checkscam.service.ScamStatsService;
 import com.example.checkscam.service.UrlScamService;
-import com.example.checkscam.util.DataUtil;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -86,26 +82,20 @@ public class UrlScamServiceImpl implements UrlScamService {
             throw new IllegalArgumentException("Chỉ hỗ trợ file định dạng CSV hoặc XLSX. File nhận được: " + originalFilename);
         }
 
-        // Sử dụng Set để lưu các domain đã chuẩn hóa và duy nhất từ file
         Set<String> uniqueNormalizedDomains = new HashSet<>();
-        int skippedRowsDueToEmptyOrInvalid = 0; // Đếm số dòng bị bỏ qua do URL gốc rỗng/không hợp lệ hoặc sau chuẩn hóa bị rỗng
+        int skippedRowsDueToEmptyOrInvalid = 0;
 
         log.info("Đang đọc và chuẩn hóa URL từ file...");
         for (UrlScamImportRow r : rows) {
             String originalUrlInfo = StringUtils.hasText(r.getDomainOrUrl()) ? r.getDomainOrUrl().trim() : null;
 
             if (!StringUtils.hasText(originalUrlInfo)) {
-                // log.warn("Bỏ qua dòng do thiếu thông tin URL/domain (dữ liệu gốc: {}).", r.getDomainOrUrl());
                 skippedRowsDueToEmptyOrInvalid++;
                 continue;
             }
-
-            // Chuẩn hóa URL/domain bằng phương thức từ DataUtil
-            // Thay thế "com.example.checkscam.util.DataUtil" bằng đường dẫn thực tế đến lớp DataUtil của bạn
             String normalizedDomainInfo = com.example.checkscam.util.DataUtil.extractFullDomain(originalUrlInfo);
 
             if (!StringUtils.hasText(normalizedDomainInfo)) {
-                // log.warn("Bỏ qua dòng do URL/domain sau chuẩn hóa là rỗng hoặc không hợp lệ (dữ liệu gốc: {}).", originalUrlInfo);
                 skippedRowsDueToEmptyOrInvalid++;
                 continue;
             }
@@ -116,34 +106,28 @@ public class UrlScamServiceImpl implements UrlScamService {
 
 
         List<UrlScam> batch = new ArrayList<>(500);
-        int processedForDbInsertion = 0; // Số bản ghi thực sự được thêm vào batch để lưu
-        int duplicatesFoundInDb = 0;     // Số bản ghi đã tồn tại trong DB
+        int processedForDbInsertion = 0;
+        int duplicatesFoundInDb = 0;
 
         log.info("Đang xử lý và lưu các URL/domain duy nhất vào cơ sở dữ liệu...");
         for (String domainToProcess : uniqueNormalizedDomains) {
-            // Kiểm tra trùng lặp trong DB cho từng domain duy nhất
             UrlScam existingScam = repository.findByInfo(domainToProcess);
 
             if (existingScam != null) {
-                // log.warn("Domain đã tồn tại trong DB (sau chuẩn hóa: '{}'), bỏ qua.", domainToProcess);
                 duplicatesFoundInDb++;
-                continue; // Chuyển sang domain tiếp theo trong Set
+                continue;
             }
 
-            // Tạo mới UrlScam với domain đã chuẩn hóa
             UrlScam newScam = new UrlScam();
             newScam.setInfo(domainToProcess);
-            // Bạn có thể lưu URL gốc vào trường description nếu muốn, nhưng cần cách lấy lại URL gốc
-            // nếu chỉ có domain đã chuẩn hóa. Điều này có thể phức tạp.
-            // Hoặc chỉ lưu domain đã chuẩn hóa.
 
             UrlScamStats stats = new UrlScamStats();
-            stats.setUrlScam(newScam); // Quan trọng: thiết lập mối quan hệ
+            stats.setUrlScam(newScam);
             stats.setVerifiedCount(1);
             stats.setReasonsJson(null);
             stats.setLastReportAt(null);
 
-            newScam.setStats(stats); // CascadeType.ALL sẽ xử lý việc lưu stats
+            newScam.setStats(stats);
 
             batch.add(newScam);
             processedForDbInsertion++;
@@ -173,27 +157,24 @@ public class UrlScamServiceImpl implements UrlScamService {
         log.debug("Đang phân tích file CSV cho URL: {}", file.getOriginalFilename());
         List<UrlScamImportRow> list = new ArrayList<>();
 
-        // 1. Mở stream hai lần: 1 lần dò delimiter, 1 lần parse thật
         try (InputStream detectStream = file.getInputStream()) {
 
-            // Đọc tối đa 3 dòng đầu tiên để đoán dấu phân tách
             char delimiter = detectCsvDelimiter(detectStream);
             log.info("Đã nhận diện delimiter '{}' cho file {}", delimiter, file.getOriginalFilename());
 
-            // 2. Parse chính thức
             try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
                  CSVParser csvParser = CSVFormat.DEFAULT
                          .withDelimiter(delimiter)
-                         .withSkipHeaderRecord(true)       // bỏ header nếu có
+                         .withSkipHeaderRecord(true)
                          .withIgnoreEmptyLines()
                          .withIgnoreSurroundingSpaces()
                          .withTrim()
                          .parse(reader)) {
 
                 for (CSVRecord record : csvParser) {
-                    if (record.size() == 0) continue;   // dòng trống thực sự
+                    if (record.size() == 0) continue;
 
-                    String firstCol = record.get(0);    // chỉ lấy cột đầu
+                    String firstCol = record.get(0);
                     if (!StringUtils.hasText(firstCol)) {
                         log.warn("Bỏ qua dòng do cột đầu rỗng (số dòng {} trong file)", record.getRecordNumber());
                         continue;
@@ -212,19 +193,14 @@ public class UrlScamServiceImpl implements UrlScamService {
         return list;
     }
 
-    /**
-     * Dò delimiter của file CSV dựa trên dữ liệu vài dòng đầu.
-     * Trả về ';' nếu đếm được ';' nhiều hơn ',', ngược lại trả về ','.
-     */
     private char detectCsvDelimiter(InputStream is) throws IOException {
-        // Đọc dòng bằng BufferedReader nhưng không consume toàn bộ stream
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
             String line;
             int linesRead = 0;
             int commaCount = 0;
             int semicolonCount = 0;
 
-            while ((line = br.readLine()) != null && linesRead < 3) {  // chỉ cần 1‑3 dòng đầu
+            while ((line = br.readLine()) != null && linesRead < 3) {
                 linesRead++;
                 commaCount     += line.chars().filter(ch -> ch == ',').count();
                 semicolonCount += line.chars().filter(ch -> ch == ';').count();
@@ -243,7 +219,7 @@ public class UrlScamServiceImpl implements UrlScamService {
             Iterator<Row> rowIterator = sheet.iterator();
 
             if (rowIterator.hasNext()) {
-                rowIterator.next(); // Bỏ qua dòng tiêu đề
+                rowIterator.next();
             } else {
                 log.warn("File Excel (URL) trống hoặc không có dòng tiêu đề: {}", file.getOriginalFilename());
                 return list;
@@ -252,7 +228,7 @@ public class UrlScamServiceImpl implements UrlScamService {
             while (rowIterator.hasNext()) {
                 Row excelRow = rowIterator.next();
                 UrlScamImportRow dto = new UrlScamImportRow();
-                String urlData = getCellText(excelRow, EXCEL_COL_URL); // Vẫn đọc cột đầu tiên cho Excel
+                String urlData = getCellText(excelRow, EXCEL_COL_URL);
                 dto.setDomainOrUrl(urlData);
                 list.add(dto);
             }

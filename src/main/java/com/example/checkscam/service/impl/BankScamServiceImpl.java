@@ -24,6 +24,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,13 +49,21 @@ public class BankScamServiceImpl implements BankScamService {
     private final BankScamStatsRepository bankScamStatsRepository;
     private final EntityManager em;
 
+    private static final String HEADER_STK = "STK";
+    private static final String HEADER_NAME_ACCOUNT = "NameAccount";
+    private static final String HEADER_BANK_NAME = "BankName";
+    private static final int EXCEL_COL_STK = 0;
+    private static final int EXCEL_COL_NAME_ACCOUNT = 1;
+    private static final int EXCEL_COL_BANK_NAME = 2;
+
+
     @Transactional
     @Override
     public void handleAfterReport(Report report, Long idScamType)
             throws CheckScamException {
 
         BankScam bankScam = repository.findByBankAccount(report.getInfo());
-        if (bankScam == null) {
+        if (ObjectUtils.isEmpty(bankScam)) {
             bankScam = new BankScam();
             bankScam.setBankAccount(report.getInfo());
             bankScam.setDescription(report.getInfoDescription());
@@ -70,7 +79,7 @@ public class BankScamServiceImpl implements BankScamService {
         statsDto = scamStatsService.handleStats(statsDto, report, idScamType);
 
         BankScamStats statsEntity;
-        if (bankScam.getStats() == null) {
+        if (ObjectUtils.isEmpty(bankScam.getStats())) {
             statsEntity = new BankScamStats(statsDto); // MapStruct
             statsEntity.setBankScam(bankScam);
         } else {
@@ -82,15 +91,6 @@ public class BankScamServiceImpl implements BankScamService {
         bankScam.setStats(statsEntity);
         repository.save(bankScam);
     }
-
-    private static final String HEADER_STK = "STK";
-    private static final String HEADER_NAME_ACCOUNT = "NameAccount";
-    private static final String HEADER_BANK_NAME = "BankName";
-
-    // Chỉ mục cột cho Excel (giữ nguyên từ phiên bản trước)
-    private static final int EXCEL_COL_STK = 0;
-    private static final int EXCEL_COL_NAME_ACCOUNT = 1;
-    private static final int EXCEL_COL_BANK_NAME = 2;
 
 
     @Transactional
@@ -112,7 +112,7 @@ public class BankScamServiceImpl implements BankScamService {
         List<BankScam> batch = new ArrayList<>(500);
         int skippedRows = 0;
         int processedRows = 0;
-        int duplicateRows = 0; // Biến đếm số dòng bị coi là trùng lặp
+        int duplicateRows = 0;
 
         for (BankScamImportRow r : rows) {
             String bankAccount = StringUtils.hasText(r.getBankAccount()) ? r.getBankAccount().trim() : null;
@@ -125,37 +125,31 @@ public class BankScamServiceImpl implements BankScamService {
                 continue;
             }
 
-            // Kiểm tra trùng lặp dựa trên cả STK, Tên chủ tài khoản và Tên ngân hàng
-            // Giả sử bạn đã thêm phương thức findByBankAccountAndNameAccountAndBankName vào BankScamRepository
             BankScam scam = repository.findByBankAccountAndNameAccountAndBankName(bankAccount, nameAccount, bankName);
 
-            if (scam != null) {
-                // Nếu tìm thấy bản ghi trùng khớp hoàn toàn, bỏ qua và ghi log
+            if (!ObjectUtils.isEmpty(scam)) {
                 log.warn("Bỏ qua dòng do thông tin đã tồn tại (trùng STK, Tên chủ TK, Tên NH): STK='{}', Tên TK='{}', Tên NH='{}'", bankAccount, nameAccount, bankName);
                 duplicateRows++;
                 continue;
             } else {
-                // Nếu không trùng hoàn toàn, kiểm tra xem có STK nào đã tồn tại không để cập nhật
-                // Hoặc tạo mới nếu STK cũng chưa có
                 scam = repository.findByBankAccount(bankAccount);
-                if (scam == null) {
+                if (ObjectUtils.isEmpty(scam)) {
                     scam = new BankScam();
                     scam.setBankAccount(bankAccount);
                 }
             }
 
-            // Cập nhật hoặc thiết lập các trường còn lại
             scam.setNameAccount(nameAccount);
             scam.setBankName(bankName);
 
             BankScamStats stats = scam.getStats();
-            if (stats == null) {
+            if (ObjectUtils.isEmpty(stats)) {
                 stats = new BankScamStats();
                 stats.setBankScam(scam);
             }
-            stats.setVerifiedCount(1); // Theo yêu cầu
-            stats.setReasonsJson(null); // Theo yêu cầu
-            stats.setLastReportAt(null); // Theo yêu cầu
+            stats.setVerifiedCount(1);
+            stats.setReasonsJson(null);
+            stats.setLastReportAt(null);
 
             scam.setStats(stats);
             batch.add(scam);
@@ -194,7 +188,6 @@ public class BankScamServiceImpl implements BankScamService {
         try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8);
              CSVParser csvParser = CSVFormat.DEFAULT
                      .builder()
-                     // Đảm bảo các tên header này khớp với file CSV của bạn
                      .setHeader(HEADER_STK, HEADER_NAME_ACCOUNT, HEADER_BANK_NAME)
                      .setSkipHeaderRecord(true)
                      .setIgnoreHeaderCase(true)
@@ -209,9 +202,9 @@ public class BankScamServiceImpl implements BankScamService {
                 String bankName = csvRecord.isMapped(HEADER_BANK_NAME) ? csvRecord.get(HEADER_BANK_NAME) : "";
 
                 BankScamImportRow row = new BankScamImportRow();
-                row.setBankAccount(stk); // STK đã được trim() bởi CSVFormat
-                row.setNameAccount(nameAccount); // nameAccount đã được trim()
-                row.setBankName(bankName); // bankName đã được trim()
+                row.setBankAccount(stk);
+                row.setNameAccount(nameAccount);
+                row.setBankName(bankName);
                 list.add(row);
             }
             log.info("Phân tích thành công {} dòng từ file CSV: {}", list.size(), file.getOriginalFilename());
@@ -232,7 +225,7 @@ public class BankScamServiceImpl implements BankScamService {
             Iterator<Row> rowIterator = sheet.iterator();
 
             if (rowIterator.hasNext()) {
-                rowIterator.next(); // Bỏ qua dòng tiêu đề
+                rowIterator.next();
             } else {
                 log.warn("File Excel trống hoặc không có dòng tiêu đề: {}", file.getOriginalFilename());
                 return list;
@@ -261,20 +254,14 @@ public class BankScamServiceImpl implements BankScamService {
         return list;
     }
 
-    /**
-     * Phương thức tiện ích để lấy giá trị ô dưới dạng Chuỗi, xử lý các loại ô khác nhau
-     * và ngăn chặn ký hiệu khoa học cho các số dài (ví dụ: số tài khoản ngân hàng).
-     * Trả về một chuỗi trống nếu ô trống hoặc null.
-     */
     private String getCellText(Row row, int cellIndex) {
         Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-        if (cell == null) {
+        if (ObjectUtils.isEmpty(cell)) {
             return "";
         }
 
         String cellValue;
         CellType cellType = cell.getCellType();
-        // Nếu ô là một công thức, lấy kiểu kết quả công thức đã lưu trong bộ nhớ cache
         if (cellType == CellType.FORMULA) {
             cellType = cell.getCachedFormulaResultType();
         }
@@ -285,18 +272,12 @@ public class BankScamServiceImpl implements BankScamService {
                 break;
             case NUMERIC:
                 if (org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
-                    // Đối với các ô ngày tháng, sử dụng DataFormatter để lấy chuỗi ngày tháng như được hiển thị trong Excel
                     org.apache.poi.ss.usermodel.DataFormatter dateFormatter = new org.apache.poi.ss.usermodel.DataFormatter();
                     cellValue = dateFormatter.formatCellValue(cell);
                 } else {
-                    // Đối với các ô số không phải ngày tháng (như STK), chuyển đổi sang chuỗi thuần túy để tránh ký hiệu khoa học.
-                    // BigDecimal được sử dụng để bảo toàn độ chính xác của các số rất dài.
                     BigDecimal bd = new BigDecimal(cell.getNumericCellValue());
                     cellValue = bd.toPlainString();
-                    // Nếu đó là một số nguyên mà BigDecimal có thể đã định dạng với ".0" (ví dụ: "123.0"),
-                    // loại bỏ ".0" ở cuối để có giá trị STK sạch hơn.
                     if (cellValue.contains(".") && cellValue.endsWith("0")) {
-                        // Kiểm tra xem nó có thực sự giống "123.0" không và không phải "123.40"
                         if (bd.stripTrailingZeros().scale() <= 0) {
                             cellValue = bd.stripTrailingZeros().toPlainString();
                         }
