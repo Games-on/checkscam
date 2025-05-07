@@ -19,6 +19,12 @@ public class BankScam extends BaseEntity {
     @Column(columnDefinition = "text")
     private String description;
 
+    @Column(name = "name_bank")
+    private String bankName;
+
+    @Column(name = "name_account")
+    private String nameAccount;
+
     /* 1‑1 ngược chiều (BankScamStats chứa FK & PK) */
     @OneToOne(mappedBy = "bankScam", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private BankScamStats stats;
