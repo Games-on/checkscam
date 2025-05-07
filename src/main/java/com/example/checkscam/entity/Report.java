@@ -1,5 +1,6 @@
 package com.example.checkscam.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -47,7 +48,8 @@ public class Report extends BaseEntity {
     @Column(name = "date_report")
     private LocalDateTime dateReport;
 
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Attachment> attachments;
 }
 

@@ -46,7 +46,7 @@ public class CheckScamServiceImpl implements CheckScamService {
                     "đường dẫn lừa đảo apple.appletwpoorf.com đã được xác thực lừa đảo từ 1 người dùng, chưa có thông tin chi tiết về đường dẫn này" +
                     "VD2: PhoneScamStatsInfoDto(id=20, phoneNumber=0123456787, lastReportAt=2025-05-07T08:52:08, verifiedCount=1, reasonsJson=ReasonsJsonDto(reasons=[ReasonsJsonDto.Reason(name=Giả mạo công an, quantity=1)]))" +
                     "bạn sẽ chuyển thành như sau: số điện thoại 0123456787 đã được xác thực lừa đảo từ 1 người dùng, với lý do giả mạo công an" +
-                    "Dữ liệu bạn cần chuyển đổi là: " + infoScam.toString() +
+                    "Dữ liệu bạn cần chuyển đổi là: " + infoScam +
                     "Lưu ý chỉ đưa ra câu trả lời theo mẫu và không thêm gì ( có thể sửa lại câu chữ cho dễ hiểu hơn","text");
             log.info( userMessage.toString());
             OpenRouterRequest openRouterRequest = new OpenRouterRequest();

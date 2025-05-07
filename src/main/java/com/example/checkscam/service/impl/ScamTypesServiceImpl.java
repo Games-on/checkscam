@@ -19,7 +19,7 @@ public class ScamTypesServiceImpl implements ScamTypesService {
 
     @Override
     public ScamTypesDto createScamType(ScamTypesDto scamTypesDto) {
-        return mapper.entityToResponse(mapper.requestToEntity(scamTypesDto));
+        return mapper.entityToResponse(repository.save(mapper.requestToEntity(scamTypesDto)));
     }
 
     @Override

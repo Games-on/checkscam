@@ -32,6 +32,13 @@ public class GlobalException {
                 .body(res);
     }
 
+    @ExceptionHandler(InvalidCaptchaException.class)
+    public ResponseEntity<String> handleInvalidCaptcha(InvalidCaptchaException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CheckScamResponse<Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
         BindingResult bindingResult = ex.getBindingResult();
