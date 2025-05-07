@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -55,12 +57,10 @@ public class NewsController {
 
     // DELETE news
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNews(@PathVariable Long id) {
+    public ResponseEntity<?> deleteNews(@PathVariable Long id) {
         boolean isDeleted = newsService.deleteNews(id);
-        if (isDeleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Map<String, String> response = new HashMap<>();
+        response.put("message","Deleted News successfully");
+        return ResponseEntity.ok(response);
     }
 }
