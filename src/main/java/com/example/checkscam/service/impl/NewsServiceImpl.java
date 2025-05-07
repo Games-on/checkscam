@@ -1,4 +1,4 @@
-package com.example.checkscam.service;
+package com.example.checkscam.service.impl;
 
 import com.example.checkscam.entity.News;
 import com.example.checkscam.repository.NewsRepository;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class NewsService {
+public class NewsServiceImpl {
     @Autowired
     private NewsRepository newsRepository;
 

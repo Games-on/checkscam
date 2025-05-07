@@ -42,4 +42,9 @@ public class RestReportController {
     public CheckScamResponse<List<ReportInfo>> getTopReportsByType(@RequestParam Integer type) {
         return new CheckScamResponse<>(reportService.findTop10RepeatedInfoByType(type));
     }
+
+    @GetMapping("/all")
+    public CheckScamResponse<List<ReportResponseDto>> getAllReportsByType() {
+        return new CheckScamResponse<>(reportService.getAllReports());
+    }
 }

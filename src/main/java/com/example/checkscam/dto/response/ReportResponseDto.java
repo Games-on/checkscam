@@ -1,9 +1,6 @@
 package com.example.checkscam.dto.response;
 
-import com.example.checkscam.dto.BankScamDto;
-import com.example.checkscam.dto.PhoneScamDto;
-import com.example.checkscam.dto.UrlScamDto;
-import com.example.checkscam.entity.AttachmentDto;
+import com.example.checkscam.dto.AttachmentDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

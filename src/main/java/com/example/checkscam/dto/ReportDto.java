@@ -1,12 +1,10 @@
 package com.example.checkscam.dto;
 
-import com.example.checkscam.entity.AttachmentDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor

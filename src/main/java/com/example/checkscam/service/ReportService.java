@@ -11,6 +11,8 @@ import java.util.List;
 public interface ReportService {
     ReportResponseDto createReport(ReportRequestDto request);
 
+    List<ReportResponseDto> getAllReports();
+
     ReportResponseDto updateReport(Long id, ReportRequestDto request) throws CheckScamException;
 
     ReportResponseDto getById(Long id) throws CheckScamException;

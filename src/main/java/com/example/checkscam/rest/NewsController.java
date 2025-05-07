@@ -1,7 +1,7 @@
 package com.example.checkscam.rest;
 
 import com.example.checkscam.entity.News;
-import com.example.checkscam.service.NewsService;
+import com.example.checkscam.service.impl.NewsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public class NewsController {
 
     @Autowired
-    private NewsService newsService;
+    private NewsServiceImpl newsService;
 
     // GET all news
     @GetMapping

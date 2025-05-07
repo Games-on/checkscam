@@ -41,6 +41,15 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public List<ReportResponseDto> getAllReports() {
+        log.info("Get all reports");
+        List<Report> reports = repository.findAll();
+        return reports.stream()
+                .map(mapper::entityToResponse)
+                .toList();
+    }
+
+    @Override
     public ReportResponseDto updateReport(Long id, ReportRequestDto request) throws CheckScamException {
         log.info("Update report with id {}", id);
         Report report = repository.findById(id).orElseThrow(
