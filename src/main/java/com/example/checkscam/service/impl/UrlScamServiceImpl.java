@@ -261,7 +261,7 @@ public class UrlScamServiceImpl implements UrlScamService {
                     org.apache.poi.ss.usermodel.DataFormatter dateFormatter = new org.apache.poi.ss.usermodel.DataFormatter();
                     cellValue = dateFormatter.formatCellValue(cell);
                 } else {
-                    BigDecimal bd = new BigDecimal(cell.getNumericCellValue());
+                    BigDecimal bd = BigDecimal.valueOf(cell.getNumericCellValue());
                     cellValue = bd.toPlainString();
                     if (cellValue.contains(".") && cellValue.endsWith("0")) {
                         if (bd.stripTrailingZeros().scale() <= 0) {

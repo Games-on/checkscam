@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -18,10 +19,10 @@ public class ReportResponseDto {
     private String description;
     private Integer status;
     private Integer type;
-    private Integer idScamTypeAfterHandle;
+    private Long idScamTypeAfterHandle;
     private String emailAuthorReport;
     private String reason;
     private String infoDescription;
     private LocalDateTime dateReport;
-    private AttachmentDto attachmentDto;
+    private List<AttachmentDto> attachmentDto;
 }

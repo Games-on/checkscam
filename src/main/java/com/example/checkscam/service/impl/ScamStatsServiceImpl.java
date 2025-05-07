@@ -15,6 +15,7 @@ import com.example.checkscam.repository.projection.UrlScamStatsInfo;
 import com.example.checkscam.service.ScamStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,30 +72,32 @@ public class ScamStatsServiceImpl implements ScamStatsService {
 
         stats.setLastReportAt(report.getDateReport());
 
-        ScamTypes scamType = scamTypesRepository.findById(idScamType).orElseThrow(
-                () -> new CheckScamException(ErrorCodeEnum.NOT_FOUND)
-        );
+        if (!ObjectUtils.isEmpty(idScamType)){
+            ScamTypes scamType = scamTypesRepository.findById(idScamType).orElseThrow(
+                    () -> new CheckScamException(ErrorCodeEnum.NOT_FOUND)
+            );
 
-        ReasonsJsonDto reasonsJson = Optional.ofNullable(stats.getReasonsJson())
-                .orElseGet(ReasonsJsonDto::new);
-        List<ReasonsJsonDto.Reason> reasons = Optional.ofNullable(reasonsJson.getReasons())
-                .orElseGet(ArrayList::new);
+            ReasonsJsonDto reasonsJson = Optional.ofNullable(stats.getReasonsJson())
+                    .orElseGet(ReasonsJsonDto::new);
+            List<ReasonsJsonDto.Reason> reasons = Optional.ofNullable(reasonsJson.getReasons())
+                    .orElseGet(ArrayList::new);
 
-        ReasonsJsonDto.Reason reason = reasons.stream()
-                .filter(r -> r.isExitByName(scamType.getName()))
-                .findFirst()
-                .orElse(null);
-        if (reason == null) {
-            reason = new ReasonsJsonDto.Reason();
-            reason.setName(scamType.getName());
-            reason.setQuantity(1);
-            reasons.add(reason);
-        } else {
-            reason.setQuantity(reason.getQuantity() + 1);
+            ReasonsJsonDto.Reason reason = reasons.stream()
+                    .filter(r -> r.isExitByName(scamType.getName()))
+                    .findFirst()
+                    .orElse(null);
+            if (reason == null) {
+                reason = new ReasonsJsonDto.Reason();
+                reason.setName(scamType.getName());
+                reason.setQuantity(1);
+                reasons.add(reason);
+            } else {
+                reason.setQuantity(reason.getQuantity() + 1);
+            }
+
+            reasonsJson.setReasons(reasons);
+            stats.setReasonsJson(reasonsJson);
         }
-
-        reasonsJson.setReasons(reasons);
-        stats.setReasonsJson(reasonsJson);
 
         return stats;
     }
