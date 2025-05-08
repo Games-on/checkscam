@@ -1,5 +1,6 @@
 package com.example.checkscam.service.impl;
 
+import com.example.checkscam.constant.StatusReportEnum;
 import com.example.checkscam.dto.PhoneScamImportRow;
 import com.example.checkscam.dto.ScamStatsDto;
 import com.example.checkscam.entity.*;
@@ -21,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,21 +53,21 @@ public class PhoneScamServiceImpl implements PhoneScamService {
 
         PhoneScam phoneScam = repository.findByPhoneNumber(report.getInfo());
 
-        if (phoneScam == null) {
+        if (ObjectUtils.isEmpty(phoneScam)) {
             phoneScam = new PhoneScam();
             phoneScam.setPhoneNumber(report.getInfo());
             phoneScam.setDescription(report.getInfoDescription());
             phoneScam = repository.save(phoneScam);
         }
 
-        ScamStatsDto statsDto = (phoneScam.getStats() != null)
+        ScamStatsDto statsDto = (!ObjectUtils.isEmpty(phoneScam.getStats()))
                 ? new ScamStatsDto(phoneScam.getStats())
                 : new ScamStatsDto();
 
         ScamStatsDto calculated = scamStatsService.handleStats(statsDto, report, idScamType);
 
         PhoneScamStats stats = phoneScam.getStats();
-        if (stats == null) {
+        if (ObjectUtils.isEmpty(stats)) {
             stats = new PhoneScamStats(calculated);
             stats.setPhoneScam(phoneScam);
         } else {
@@ -83,35 +85,25 @@ public class PhoneScamServiceImpl implements PhoneScamService {
 
         List<PhoneScamImportRow> rows = parse(file);
         List<PhoneScam> batch = new ArrayList<>(500);
-        int skippedRows = 0; // Biến đếm số dòng bị bỏ qua
+        int skippedRows = 0;
 
         for (PhoneScamImportRow r : rows) {
 
-            // *** BỔ SUNG KIỂM TRA PHONE NUMBER ***
             String phoneNumber = r.getPhoneNumber();
-            // Sử dụng StringUtils.hasText để kiểm tra cả null, rỗng và chỉ chứa khoảng trắng
             if (!StringUtils.hasText(phoneNumber)) {
                 log.warn("Skipping row due to empty or blank phone number: {}", r);
                 skippedRows++;
-                continue; // Bỏ qua dòng này và chuyển sang dòng tiếp theo
+                continue;
             }
-            // Trim phoneNumber để loại bỏ khoảng trắng thừa nếu cần
             phoneNumber = phoneNumber.trim();
-            // *************************************
-
-            /* --- TÌM TỒN TẠI/HOẶC TẠO MỚI PHONE_SCAM --- */
-            // Sử dụng phoneNumber đã được trim
             PhoneScam scam = repository.findByPhoneNumber(phoneNumber);
-            if (scam == null) {
+            if (ObjectUtils.isEmpty(scam)) {
                 scam = new PhoneScam();
-                // Gán phoneNumber đã được trim
                 scam.setPhoneNumber(phoneNumber);
             }
-            scam.setDescription(r.getDescription()); // Cân nhắc trim description nếu cần
-
-            /* --- TẠO/UPDATE STATS --- */
+            scam.setDescription(r.getDescription());
             PhoneScamStats stats = scam.getStats();
-            if (stats == null) {
+            if (ObjectUtils.isEmpty(stats)) {
                 stats = new PhoneScamStats();
                 stats.setPhoneScam(scam); // @MapsId
             }
@@ -122,7 +114,7 @@ public class PhoneScamServiceImpl implements PhoneScamService {
                     Optional.ofNullable(r.getLastReportAt())
                             .map(String::trim)
                             .filter(s -> !s.isEmpty())
-                            .map(s -> { // Thêm try-catch để xử lý lỗi parse date
+                            .map(s -> {
                                 try {
                                     return LocalDateTime.parse(s);
                                 } catch (Exception e) {
@@ -138,8 +130,7 @@ public class PhoneScamServiceImpl implements PhoneScamService {
             scam.setStats(stats);
             batch.add(scam);
 
-            /* --- FLUSH THEO LÔ --- */
-            if (batch.size() >= 500) { // >= để đảm bảo flush khi đủ 500
+            if (batch.size() >= 500) {
                 log.info("Flushing batch of {} records...", batch.size());
                 repository.saveAll(batch);
                 em.flush();
@@ -148,8 +139,6 @@ public class PhoneScamServiceImpl implements PhoneScamService {
                 log.info("Batch flushed and cleared.");
             }
         }
-
-        /* --- LÔ CUỐI CÙNG --- */
         if (!batch.isEmpty()) {
             log.info("Flushing final batch of {} records...", batch.size());
             repository.saveAll(batch);
@@ -160,17 +149,10 @@ public class PhoneScamServiceImpl implements PhoneScamService {
 
         if (skippedRows > 0) {
             log.warn("Import completed. Skipped {} rows due to missing or blank phone numbers.", skippedRows);
-            // Có thể throw exception ở đây nếu muốn báo lỗi rõ ràng hơn cho người dùng
-            // throw new CheckScamException("Import completed with warnings. " + skippedRows + " rows were skipped due to missing phone numbers.");
         } else {
             log.info("Import completed successfully. Processed {} rows.", rows.size());
         }
     }
-
-    // --- parse, parseCsv, parseExcel giữ nguyên ---
-    // Lưu ý: Nên xem xét việc trim() giá trị phoneNumber ngay trong các hàm parse
-    // để xử lý nhất quán hơn. Ví dụ trong parseCsv:
-    // row.setPhoneNumber(rec.get("phoneNumber").trim());
 
     private List<PhoneScamImportRow> parse(MultipartFile file) throws IOException {
         String name = Optional.ofNullable(file.getOriginalFilename()).orElse("").toLowerCase();
@@ -181,22 +163,20 @@ public class PhoneScamServiceImpl implements PhoneScamService {
 
     private List<PhoneScamImportRow> parseCsv(MultipartFile file) throws IOException {
         try (Reader reader = new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)) {
-            // Thêm withTrim() để tự động loại bỏ khoảng trắng bao quanh giá trị
             CSVParser csv = CSVFormat.DEFAULT
                     .withFirstRecordAsHeader()
                     .withIgnoreSurroundingSpaces()
-                    .withTrim() // Tự động trim các giá trị đọc được
+                    .withTrim()
                     .parse(reader);
 
             return csv.getRecords().stream()
                     .map(rec -> {
                         PhoneScamImportRow row = new PhoneScamImportRow();
-                        // Không cần trim() ở đây nữa nếu đã dùng withTrim()
                         row.setPhoneNumber(rec.get("phoneNumber"));
                         row.setDescription(rec.get("description"));
                         row.setVerifiedCount(
-                                parseIntSafe(rec.get("verifiedCount"))); // verifiedCount đã được trim
-                        row.setLastReportAt(rec.get("lastReportAt")); // lastReportAt đã được trim
+                                parseIntSafe(rec.get("verifiedCount")));
+                        row.setLastReportAt(rec.get("lastReportAt"));
                         return row;
                     }).collect(Collectors.toList());
         }
@@ -206,20 +186,17 @@ public class PhoneScamServiceImpl implements PhoneScamService {
         try (XSSFWorkbook wb = new XSSFWorkbook(file.getInputStream())) {
             XSSFSheet sheet = wb.getSheetAt(0);
             Iterator<Row> it = sheet.iterator();
-
-            // Kiểm tra xem có dòng header không
             if (!it.hasNext()) {
-                return new ArrayList<>(); // File rỗng hoặc không có header
+                return new ArrayList<>();
             }
-            it.next(); // Bỏ qua header
+            it.next();
 
             List<PhoneScamImportRow> list = new ArrayList<>();
-            int rowNum = 1; // Bắt đầu từ dòng 2 (sau header)
+            int rowNum = 1;
             while (it.hasNext()) {
                 Row row = it.next();
                 rowNum++;
                 PhoneScamImportRow dto = new PhoneScamImportRow();
-                // Lấy và trim giá trị
                 String phoneNumber = getCell(row, 0).trim();
                 String description = getCell(row, 1).trim();
                 String verifiedCountStr = getCell(row, 2).trim();
@@ -236,35 +213,25 @@ public class PhoneScamServiceImpl implements PhoneScamService {
     }
 
 
-    /* ------------------------- Tiện ích nhỏ ---------------------------- */
-    // Đã được sửa đổi để trả về String và trim() trong hàm parseExcel
     private static String getCell(Row row, int idx) {
         Cell c = row.getCell(idx, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
         String cellValue;
         if (c.getCellType() == CellType.NUMERIC) {
-            // Xử lý cẩn thận hơn với số, tránh lỗi khoa học (ví dụ: 1.23E10)
-            // Có thể dùng DataFormatter nếu cần độ chính xác cao hơn với định dạng Excel
-            cellValue = String.valueOf((long) c.getNumericCellValue()); // Giữ nguyên nếu chỉ cần số nguyên dài
-            // Hoặc dùng DecimalFormat nếu có thể là số thập phân:
-            // java.text.DecimalFormat df = new java.text.DecimalFormat("#");
-            // cellValue = df.format(c.getNumericCellValue());
+            cellValue = String.valueOf((long) c.getNumericCellValue());
         } else {
             cellValue = c.getStringCellValue();
         }
-        // Trả về chuỗi rỗng nếu null, thay vì "null"
         return cellValue == null ? "" : cellValue;
     }
 
-    // Giữ nguyên hàm parseIntSafe
     private static Integer parseIntSafe(String s) {
-        // Thêm trim và kiểm tra rỗng trước khi parse
         if (s == null) return null;
         s = s.trim();
         if (s.isEmpty()) return null;
         try {
             return Integer.valueOf(s);
         } catch (NumberFormatException e) {
-            log.warn("Could not parse integer value '{}'", s, e); // Ghi log lỗi parse
+            log.warn("Could not parse integer value '{}'", s, e);
             return null;
         }
     }

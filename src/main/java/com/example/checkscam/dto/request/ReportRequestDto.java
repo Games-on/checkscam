@@ -22,4 +22,5 @@ public class ReportRequestDto {
     private String reason;
     private String infoDescription;
     private LocalDateTime dateReport;
+    private String captchaToken;
 }
