@@ -1,17 +1,19 @@
 package com.example.checkscam.dto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
+@Getter
+@Setter
 public class UrlScamStatsInfoDto {
     private Long id;
     private String urlScam;
     private Integer verifiedCount;
     private LocalDateTime lastReportAt;
 
-    // Constructor matching the query
     public UrlScamStatsInfoDto(Long id, String urlScam, Integer verifiedCount, LocalDateTime lastReportAt) {
         this.id = id;
         this.urlScam = urlScam;
@@ -19,5 +21,4 @@ public class UrlScamStatsInfoDto {
         this.lastReportAt = lastReportAt;
     }
 
-    // Getters and setters (if needed)
 }
