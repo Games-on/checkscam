@@ -1,22 +1,40 @@
 package com.example.checkscam.service;
 
+import com.example.checkscam.constant.RoleName;
 import com.example.checkscam.dto.ResCreateUserDTO;
+import com.example.checkscam.dto.request.UpdateUserRequest;
+import com.example.checkscam.entity.Role;
 import com.example.checkscam.entity.User;
+import com.example.checkscam.repository.RoleRepository;
 import com.example.checkscam.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    public UserService(UserRepository userRepository) {
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public ResCreateUserDTO handleCreateUser(User user) {
         ResCreateUserDTO resCreateUserDTO = new ResCreateUserDTO();
+        // Lấy role COLLAB
+        Role collabRole = roleRepository.findByName(RoleName.COLLAB);
+        Set<Role> roles = new HashSet<>();
+        roles.add(collabRole);
+        user.setRoles(roles); // Gán role COLLAB cho user
+
         user = userRepository.save(user);
         resCreateUserDTO.setId(user.getId());
         resCreateUserDTO.setEmail(user.getEmail());
@@ -38,12 +56,16 @@ public class UserService {
     }
 
 
-    public User handleUpdateUser(User reqUser) {
-        User currentUser = this.fetchUserById(reqUser.getId());
+    public User handleUpdateUser(Long id, UpdateUserRequest updateUserRequest) {
+        User currentUser = this.fetchUserById(id);
         if (currentUser != null) {
-            currentUser.setEmail(reqUser.getEmail());
-            currentUser.setName(reqUser.getName());
-            currentUser.setPassword(reqUser.getPassword());
+            currentUser.setEmail(updateUserRequest.getEmail());
+            currentUser.setName(updateUserRequest.getName());
+            if (updateUserRequest.getPassword() != null && !updateUserRequest.getPassword().isEmpty()) {
+                // Mã hóa mật khẩu trước khi lưu
+                String encodedPassword = passwordEncoder.encode(updateUserRequest.getPassword());
+                currentUser.setPassword(encodedPassword);
+            }
             // update
             currentUser = this.userRepository.save(currentUser);
         }
