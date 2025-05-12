@@ -92,6 +92,9 @@ public class CheckScamServiceImpl implements CheckScamService {
                     .get(0).getContent().getParts().get(0).getText();
             String jsonString = stripCodeFence(raw);
             ChatBotResponseV2Dto chatBotResponseV2Dto = objectMapper.readValue(jsonString, ChatBotResponseV2Dto.class);
+            if (ObjectUtils.isEmpty(chatBotResponseV2Dto.getContent())) {
+                chatBotResponseV2Dto.setContent("Chatbot vừa xảy ra lỗi, vui lòng thử lại");
+            }
             if (chatBotResponseV2Dto.getType() == 1){
                 CheckScamRequestDto checkScamRequestDto = new CheckScamRequestDto();
                 checkScamRequestDto.setInfo(chatBotResponseV2Dto.getContent());
