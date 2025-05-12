@@ -66,21 +66,25 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             value = """
             SELECT new com.example.checkscam.dto.response.ReportResponseDto(r) 
             FROM Report r
-            WHERE
+            WHERE 1 = 1 AND
                   (:#{#dto.info} IS NULL
                    OR lower(r.info) LIKE lower(concat('%', :#{#dto.info}, '%')))
               AND (:#{#dto.type} IS NULL
-                   OR r.type = :#{#dto.type})
+                   OR r.type = :#{#dto.type}) 
+              AND (:#{#dto.status} IS NULL
+                   OR r.status = :#{#dto.status}) 
             ORDER BY r.dateReport DESC
             """,
             countQuery = """
             SELECT COUNT(r)
             FROM Report r
-            WHERE
+            WHERE 1 = 1 AND
                   (:#{#dto.info} IS NULL
                    OR lower(r.info) LIKE lower(concat('%', :#{#dto.info}, '%')))
               AND (:#{#dto.type} IS NULL
                    OR r.type = :#{#dto.type})
+              AND (:#{#dto.status} IS NULL
+                   OR r.status = :#{#dto.status}) 
             """
     )
     Page<ReportResponseDto> search(@Param("dto") ReportSearchDto dto, Pageable pageable);

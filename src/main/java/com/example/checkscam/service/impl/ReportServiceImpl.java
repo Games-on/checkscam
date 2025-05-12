@@ -101,7 +101,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public Page<ReportResponseDto> searchReports(ReportSearchDto searchDto) {
-        Pageable pageable = PageRequest.of(searchDto.getPageIndex(), searchDto.getPageSize());
+        Pageable pageable = PageRequest.of(searchDto.getPageIndex() - 1, searchDto.getPageSize());
         return repository.search(searchDto, pageable);
     }
 
