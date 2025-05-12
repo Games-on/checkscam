@@ -27,7 +27,7 @@ public class RestUserController {
     }
 
     @PostMapping()
-//    @PreAuthorize("hasAuthority('ADMIN')") // Chỉ cho phép ADMIN tạo user
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Chỉ cho phép ADMIN tạo user
 //    public ResponseEntity<ResCreateUserDTO> createNewUser(@RequestBody User postManUser) {
 //        String hashPassword = this.passwordEncoder.encode(postManUser.getPassword());
 //        postManUser.setPassword(hashPassword);
@@ -53,7 +53,7 @@ public class RestUserController {
     }
 
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable("id") long id) {
         this.userService.handleDeleteUser(id);
         return ResponseEntity.ok("User deleted successfully");
@@ -61,7 +61,7 @@ public class RestUserController {
 
     // fetch user by id
     @GetMapping("/{id}")
-//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public CheckScamResponse<User> getUserById(@PathVariable("id") long id) {
         return new CheckScamResponse<>(this.userService.fetchUserById(id));
     }
@@ -74,7 +74,7 @@ public class RestUserController {
     }
 
     @PutMapping("/{id}")
-    // @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<User> updateUser(
             @PathVariable Long id,
             @RequestBody UpdateUserRequest updateUserRequest) {
