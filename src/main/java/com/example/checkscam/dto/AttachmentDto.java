@@ -1,7 +1,6 @@
 package com.example.checkscam.dto;
 
 import com.example.checkscam.entity.Attachment;
-import com.example.checkscam.entity.NewsDto;
 import lombok.*;
 
 
