@@ -20,19 +20,16 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
-import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableMethodSecurity(securedEnabled = true)
+@EnableMethodSecurity(securedEnabled = true) // Kích hoạt bảo mật cấp phương thức.  Điều này cho phép sử dụng @PreAuthorize
 public class SecurityConfiguration {
 
     @Value("${checkscam.jwt.base64-secret}")
@@ -44,41 +41,33 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(
-            HttpSecurity http,
-            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-//                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(
-                        authz -> authz
-                                .requestMatchers("/api/v1/news/**").authenticated()
-                                .requestMatchers("/api/v1/users/**").authenticated()
-                                .requestMatchers("/api/v1/auth/login").permitAll()
-                                .requestMatchers("/**").permitAll()
-                                .anyRequest().authenticated())
-                                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-                                        .authenticationEntryPoint(customAuthenticationEntryPoint))
-//                                .exceptionHandling(
-//                                        exceptions -> exceptions
-//                                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) // 401
-//                                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) // 403
-                .cors(new Customizer<CorsConfigurer<HttpSecurity>>() {
-                    @Override
-                    public void customize(CorsConfigurer<HttpSecurity> httpSecurityCorsConfigurer) {
-                        CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(List.of("*"));
-                        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
-                        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                        configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
-                        configuration.setExposedHeaders(List.of("x-auth-token"));
-                        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                        source.registerCorsConfiguration("/**", configuration);
-                        httpSecurityCorsConfigurer.configurationSource(source);
-                    }
+                .authorizeHttpRequests(authz -> authz
+                        // Các cấu hình khác giữ nguyên
+                        .requestMatchers("/api/v1/news/**").authenticated() // Các endpoint này yêu cầu xác thực
+                        .requestMatchers("/api/v1/users/**").authenticated() // Các endpoint này yêu cầu xác thực
+                        .requestMatchers("/api/v1/auth/login").permitAll() // Cho phép truy cập không cần xác thực
+                        .requestMatchers("/**").permitAll() // Cho phép tất cả các request, sau đó sẽ cấu hình cụ thể hơn
+                        .anyRequest().authenticated() // Bất kỳ request nào khác đều yêu cầu xác thực
+                )
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                )
+                .cors(httpSecurityCorsConfigurer -> {
+                    CorsConfiguration configuration = new CorsConfiguration();
+                    configuration.setAllowedOrigins(List.of("*"));
+                    configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+                    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                    configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
+                    configuration.setExposedHeaders(List.of("x-auth-token"));
+                    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                    source.registerCorsConfiguration("/**", configuration);
+                    httpSecurityCorsConfigurer.configurationSource(source);
                 })
-                .formLogin((AbstractHttpConfigurer::disable))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .formLogin(AbstractHttpConfigurer::disable) // Vô hiệu hóa login form mặc định
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // Đặt session thành stateless (cho API)
 
         return http.build();
     }
@@ -89,6 +78,7 @@ public class SecurityConfiguration {
         grantedAuthoritiesConverter.setAuthorityPrefix("");
         grantedAuthoritiesConverter.setAuthoritiesClaimName("checkscam");
 
+
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
@@ -96,27 +86,24 @@ public class SecurityConfiguration {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
-                getSecretKey()).macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
         return token -> {
             try {
-                return jwtDecoder.decode(token);
+                return jwtDecoder.decode(token); // Giải mã JWT
             } catch (Exception e) {
                 System.out.println(">>> JWT error: " + e.getMessage());
-                throw e;
+                throw e; // Xử lý lỗi giải mã JWT
             }
         };
     }
 
     @Bean
     public JwtEncoder jwtEncoder() {
-        return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey()));
+        return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey())); // Mã hóa JWT
     }
 
     private SecretKey getSecretKey() {
-        byte[] keyBytes = Base64.from(jwtKey).decode();
-        return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
+        byte[] keyBytes = Base64.from(jwtKey).decode(); // Giải mã base64 của JWT secret
+        return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName()); // Tạo SecretKey
     }
-
-
 }
