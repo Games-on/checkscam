@@ -1,5 +1,6 @@
 package com.example.checkscam.dto;
 
+import com.example.checkscam.entity.Attachment;
 import com.example.checkscam.entity.NewsDto;
 import lombok.*;
 
@@ -14,4 +15,9 @@ public class AttachmentDto {
     private String url;
     private ReportDto report;
     private NewsDto news;
+
+    public AttachmentDto(Attachment attachment) {
+        this.id = attachment.getId();
+        this.url = attachment.getUrl();
+    }
 }

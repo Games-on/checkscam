@@ -1,7 +1,11 @@
 package com.example.checkscam.repository;
 
+import com.example.checkscam.dto.response.ReportResponseDto;
+import com.example.checkscam.dto.search.ReportSearchDto;
 import com.example.checkscam.entity.Report;
 import com.example.checkscam.repository.projection.ReportInfo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -57,4 +61,31 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             """, nativeQuery = true)
     List<ReportInfo> findTop10RepeatedInfoByType(@Param("typeParam") int type);
 
+
+    @Query(
+            value = """
+            SELECT new com.example.checkscam.dto.response.ReportResponseDto(r) 
+            FROM Report r
+            WHERE 1 = 1 AND
+                  (:#{#dto.info} IS NULL
+                   OR lower(r.info) LIKE lower(concat('%', :#{#dto.info}, '%')))
+              AND (:#{#dto.type} IS NULL
+                   OR r.type = :#{#dto.type}) 
+              AND (:#{#dto.status} IS NULL
+                   OR r.status = :#{#dto.status}) 
+            ORDER BY r.dateReport DESC
+            """,
+            countQuery = """
+            SELECT COUNT(r)
+            FROM Report r
+            WHERE 1 = 1 AND
+                  (:#{#dto.info} IS NULL
+                   OR lower(r.info) LIKE lower(concat('%', :#{#dto.info}, '%')))
+              AND (:#{#dto.type} IS NULL
+                   OR r.type = :#{#dto.type})
+              AND (:#{#dto.status} IS NULL
+                   OR r.status = :#{#dto.status}) 
+            """
+    )
+    Page<ReportResponseDto> search(@Param("dto") ReportSearchDto dto, Pageable pageable);
 }
