@@ -52,9 +52,14 @@ public class SecurityConfiguration {
                         .requestMatchers("/**").permitAll() // Cho phép tất cả các request, sau đó sẽ cấu hình cụ thể hơn
                         .anyRequest().authenticated() // Bất kỳ request nào khác đều yêu cầu xác thực
                 )
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .oauth2ResourceServer(oauth2 ->
+                        oauth2
+                                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .jwt(jwt -> jwt
+                                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                                )
                 )
+
                 .cors(httpSecurityCorsConfigurer -> {
                     CorsConfiguration configuration = new CorsConfiguration();
                     configuration.setAllowedOrigins(List.of("*"));
@@ -75,14 +80,24 @@ public class SecurityConfiguration {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
         grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("checkscam");
 
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return converter;
     }
+
+//    @Bean
+//    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+//        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+//        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles"); // claim trong JWT
+//        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // để dùng hasRole()
+//
+//        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+//        converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+//        return converter;
+//    }
 
     @Bean
     public JwtDecoder jwtDecoder() {
