@@ -8,6 +8,7 @@ import com.example.checkscam.dto.AttachmentDto;
 import com.example.checkscam.dto.request.HandleReportRequestDto;
 import com.example.checkscam.dto.request.ReportRequestDto;
 import com.example.checkscam.dto.response.ReportResponseDto;
+import com.example.checkscam.dto.search.ReportSearchDto;
 import com.example.checkscam.entity.Attachment;
 import com.example.checkscam.entity.Report;
 import com.example.checkscam.exception.CheckScamException;
@@ -27,6 +28,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,6 +97,12 @@ public class ReportServiceImpl implements ReportService {
             reportResponseDto.setAttachmentDto(attachmentDtos);
         }
         return reportResponseDto;
+    }
+
+    @Override
+    public Page<ReportResponseDto> searchReports(ReportSearchDto searchDto) {
+        Pageable pageable = PageRequest.of(searchDto.getPageIndex(), searchDto.getPageSize());
+        return repository.search(searchDto, pageable);
     }
 
     @Override

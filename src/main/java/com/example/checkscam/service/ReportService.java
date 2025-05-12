@@ -4,11 +4,13 @@ import com.example.checkscam.dto.AttachmentDto;
 import com.example.checkscam.dto.request.HandleReportRequestDto;
 import com.example.checkscam.dto.request.ReportRequestDto;
 import com.example.checkscam.dto.response.ReportResponseDto;
+import com.example.checkscam.dto.search.ReportSearchDto;
 import com.example.checkscam.entity.Attachment;
 import com.example.checkscam.exception.CheckScamException;
 import com.example.checkscam.repository.projection.ReportInfo;
 import jakarta.transaction.Transactional;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,6 +24,8 @@ public interface ReportService {
     ReportResponseDto updateReport(Long id, ReportRequestDto request) throws CheckScamException;
 
     ReportResponseDto getById(Long id) throws CheckScamException;
+
+    Page<ReportResponseDto> searchReports(ReportSearchDto searchDto);
 
     List<ReportInfo> findTop10RepeatedInfoByType(Integer type);
 

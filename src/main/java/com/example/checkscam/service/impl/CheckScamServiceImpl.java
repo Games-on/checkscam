@@ -43,10 +43,12 @@ public class CheckScamServiceImpl implements CheckScamService {
         Object infoScam = null;
         switch (requestDto.getType()){
             case SDT -> {
+                requestDto.setInfo(DataUtil.normalizePhoneNumber(requestDto.getInfo()));
                 DataUtil.validatePhoneNumber(requestDto.getInfo());
                 infoScam = scamStatsService.getPhoneScamStatsInfo(requestDto.getInfo());
             }
             case STK -> {
+                requestDto.setInfo(DataUtil.normalizePhoneNumber(requestDto.getInfo()));
                 DataUtil.validateBankAccount(requestDto.getInfo());
                 infoScam = scamStatsService.getBankScamStatsInfo(requestDto.getInfo());
             }

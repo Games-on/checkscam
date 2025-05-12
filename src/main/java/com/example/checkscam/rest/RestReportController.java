@@ -5,6 +5,7 @@ import com.example.checkscam.constant.MessageKeys;
 import com.example.checkscam.dto.request.HandleReportRequestDto;
 import com.example.checkscam.dto.request.ReportRequestDto;
 import com.example.checkscam.dto.response.ReportResponseDto;
+import com.example.checkscam.dto.search.ReportSearchDto;
 import com.example.checkscam.entity.Attachment;
 import com.example.checkscam.exception.*;
 import com.example.checkscam.repository.projection.ReportInfo;
@@ -14,6 +15,7 @@ import com.example.checkscam.service.ReportService;
 import com.example.checkscam.service.impl.CaptchaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +66,10 @@ public class RestReportController {
     @GetMapping("/all")
     public CheckScamResponse<List<ReportResponseDto>> getAllReportsByType() {
         return new CheckScamResponse<>(reportService.getAllReports());
+    }
+    @GetMapping("/search")
+    public CheckScamResponse<Page<ReportResponseDto>> search(ReportSearchDto searchDto) {
+        return new CheckScamResponse<>(reportService.searchReports(searchDto));
     }
 
     @PostMapping(value = "/uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
