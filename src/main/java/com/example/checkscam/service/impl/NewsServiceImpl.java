@@ -2,9 +2,9 @@ package com.example.checkscam.service.impl;
 
 import com.example.checkscam.component.FileUtils;
 import com.example.checkscam.constant.ErrorCodeEnum;
+import com.example.checkscam.dto.request.NewsRequestDto;
 import com.example.checkscam.entity.Attachment;
 import com.example.checkscam.entity.News;
-import com.example.checkscam.entity.Report;
 import com.example.checkscam.exception.CheckScamException;
 import com.example.checkscam.exception.FileUploadValidationException;
 import com.example.checkscam.exception.InvalidParamException;
@@ -13,7 +13,6 @@ import com.example.checkscam.repository.NewsRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -47,12 +46,16 @@ public class NewsServiceImpl {
     }
 
     //post news
-    public News createNews(News news) {
-        return newsRepository.save(news);
+    public News createNews(NewsRequestDto news) {
+        News newsEntity = new News();
+        newsEntity.setName(news.getName());
+        newsEntity.setContent(news.getContent());
+        newsEntity.setShortDescription(news.getShortDescription());
+        return newsRepository.save(newsEntity);
     }
 
     // put news
-    public News updateNews(Long id, News news) {
+    public News updateNews(Long id, NewsRequestDto news) {
         Optional<News> existingNews = newsRepository.findById(id);
         if (existingNews.isPresent()) {
             News updatedNews = existingNews.get();

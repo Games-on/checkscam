@@ -2,6 +2,7 @@ package com.example.checkscam.rest;
 
 import com.example.checkscam.component.LocalizationUtils;
 import com.example.checkscam.constant.MessageKeys;
+import com.example.checkscam.dto.request.NewsRequestDto;
 import com.example.checkscam.entity.Attachment;
 import com.example.checkscam.entity.News;
 import com.example.checkscam.exception.DataNotFoundException;
@@ -10,7 +11,6 @@ import com.example.checkscam.exception.InvalidParamException;
 import com.example.checkscam.response.ResponseObject;
 import com.example.checkscam.service.impl.NewsServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -53,15 +53,15 @@ public class NewsController {
 
     // POST news
     @PostMapping
-    public ResponseEntity<News> createNews(@RequestBody News news) {
-        News createdNews = newsService.createNews(news);
+    public ResponseEntity<News> createNews(@RequestBody NewsRequestDto createNewsRequestDto) {
+        News createdNews = newsService.createNews(createNewsRequestDto);
         return new ResponseEntity<>(createdNews, HttpStatus.CREATED);
     }
 
     // PUT news
     @PutMapping("/{id}")
     public ResponseEntity<News> updateNews(@PathVariable Long id, @RequestBody News news) {
-        News updatedNews = newsService.updateNews(id, news);
+        News updatedNews = newsService.updateNews(id, new NewsRequestDto());
         if (updatedNews != null) {
             return new ResponseEntity<>(updatedNews, HttpStatus.OK);
         } else {
