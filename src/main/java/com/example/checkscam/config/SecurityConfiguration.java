@@ -48,7 +48,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/news/**").authenticated()
                         .requestMatchers("/api/v1/users/**").authenticated() // Các endpoint này yêu cầu xác thực
                         .requestMatchers(HttpMethod.POST,"/api/v1/report/**").permitAll()
-                        .requestMatchers("/api/v1/report/**").authenticated() // Các endpoint này yêu cầu xác thực
+                        .requestMatchers(HttpMethod.GET,"/api/v1/report/image/**").permitAll()
+                        .requestMatchers("/api/v1/report/**").authenticated() // Cxác endpoint này yêu cầu xác thực
                         .requestMatchers("/api/v1/auth/login").permitAll() // Cho phép truy cập không cần xác thực
                         .requestMatchers("/**").permitAll() // Cho phép tất cả các request, sau đó sẽ cấu hình cụ thể hơn
                         .anyRequest().authenticated() // Bất kỳ request nào khác đều yêu cầu xác thực
