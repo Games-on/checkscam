@@ -25,7 +25,7 @@ public class Attachment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "news_id")
-    @JsonBackReference
+    @JsonBackReference(value = "news-attachments")
     private News news;
 }
 

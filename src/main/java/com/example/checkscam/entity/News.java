@@ -25,6 +25,6 @@ public class News extends BaseEntity {
     private String content;
 
     @OneToMany(mappedBy = "news")
-    @JsonManagedReference
+    @JsonManagedReference(value = "news-attachments")
     private List<Attachment> attachments;
 }
