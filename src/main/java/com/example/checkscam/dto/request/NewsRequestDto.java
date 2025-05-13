@@ -18,6 +18,4 @@ public class NewsRequestDto {
     private String content;
     private List<Attachment> attachments;
 
-
-
 }

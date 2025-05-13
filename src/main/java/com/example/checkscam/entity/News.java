@@ -1,5 +1,6 @@
 package com.example.checkscam.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,5 +25,6 @@ public class News extends BaseEntity {
     private String content;
 
     @OneToMany(mappedBy = "news")
+    @JsonManagedReference
     private List<Attachment> attachments;
 }

@@ -6,6 +6,7 @@ import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -43,7 +44,8 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/v1/news/**").authenticated() // Các endpoint này yêu cầu xác thực
+                        .requestMatchers(HttpMethod.GET, "/api/v1/news/**").permitAll()
+                        .requestMatchers("/api/v1/news/**").authenticated()
                         .requestMatchers("/api/v1/users/**").authenticated() // Các endpoint này yêu cầu xác thực
                         .requestMatchers("/api/v1/auth/login").permitAll() // Cho phép truy cập không cần xác thực
                         .requestMatchers("/**").permitAll() // Cho phép tất cả các request, sau đó sẽ cấu hình cụ thể hơn
