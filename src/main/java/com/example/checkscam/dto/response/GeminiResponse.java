@@ -2,9 +2,11 @@ package com.example.checkscam.dto.response;
 
 import com.example.checkscam.dto.CandidateDto;
 import com.example.checkscam.dto.UsageMetadataDto;
+import lombok.Data;
 
 import java.util.List;
 
+@Data
 public class GeminiResponse {
     private List<CandidateDto> candidates;
     private UsageMetadataDto usageMetadata;

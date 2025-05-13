@@ -1,12 +1,23 @@
 package com.example.checkscam.rest;
 
+import com.example.checkscam.component.LocalizationUtils;
+import com.example.checkscam.constant.MessageKeys;
+import com.example.checkscam.entity.Attachment;
 import com.example.checkscam.entity.News;
+import com.example.checkscam.exception.DataNotFoundException;
+import com.example.checkscam.exception.FileUploadValidationException;
+import com.example.checkscam.exception.InvalidParamException;
+import com.example.checkscam.response.ResponseObject;
 import com.example.checkscam.service.impl.NewsServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +25,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/news")
+@RequiredArgsConstructor
 public class NewsController {
 
-    @Autowired
-    private NewsServiceImpl newsService;
+    private final NewsServiceImpl newsService;
+    private final LocalizationUtils localizationUtils;
 
     // GET all news
     @GetMapping
@@ -62,5 +74,53 @@ public class NewsController {
         Map<String, String> response = new HashMap<>();
         response.put("message","Deleted News successfully");
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseObject> uploadAttachments(
+            @PathVariable("id") Long newsId,
+            @RequestParam("files")List<MultipartFile> files) {
+        try {
+            List<Attachment> attachments = newsService.uploadAndCreateAttachments(newsId, files);
+            if (attachments.isEmpty() && (files == null || files.stream().allMatch(f -> f == null || f.isEmpty() || f.getSize() == 0))) {
+                return ResponseEntity.ok().body(ResponseObject.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_ATTACHMENTS_NO_VALID_FILES))
+                        .status(HttpStatus.OK)
+                        .data(attachments)
+                        .build());
+            }
+
+            return ResponseEntity.ok().body(ResponseObject.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_ATTACHMENTS_SUCCESSFULLY))
+                    .status(HttpStatus.OK)
+                    .data(attachments)
+                    .build());
+
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ResponseObject.builder()
+                    .message(localizationUtils.getLocalizedMessage(e.getMessage()))
+                    .status(HttpStatus.NOT_FOUND)
+                    .build());
+        } catch (InvalidParamException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
+                    .message(localizationUtils.getLocalizedMessage(e.getMessage()))
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build());
+        } catch (FileUploadValidationException e) {
+            return ResponseEntity.status(e.getHttpStatus()).body(ResponseObject.builder()
+                    .message(localizationUtils.getLocalizedMessage(e.getMessageKey(), e.getArgs()))
+                    .status(e.getHttpStatus())
+                    .build());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseObject.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_ATTACHMENTS_FILE_STORAGE_ERROR, e.getMessage()))
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseObject.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKeys.ERROR_OCCURRED_DEFAULT, e.getMessage()))
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build());
+        }
     }
 }
