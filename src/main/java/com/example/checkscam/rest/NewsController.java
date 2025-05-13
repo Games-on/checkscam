@@ -11,12 +11,14 @@ import com.example.checkscam.response.ResponseObject;
 import com.example.checkscam.service.impl.NewsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -121,6 +123,25 @@ public class NewsController {
                     .message(localizationUtils.getLocalizedMessage(MessageKeys.ERROR_OCCURRED_DEFAULT, e.getMessage()))
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build());
+        }
+    }
+
+    @GetMapping("/image/{imageName}")
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
+        try {
+            Resource image = newsService.loadImage(imageName);
+            String mimeType = newsService.getImageMimeType(imageName);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(mimeType != null ? mimeType : "application/octet-stream"))
+                    .body(image);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Tên file không hợp lệ");
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Không thể tải ảnh");
         }
     }
 }
