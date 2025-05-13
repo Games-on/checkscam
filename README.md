@@ -6,7 +6,8 @@ Dự án xây dựng một nền tảng web giúp người dùng kiểm tra đ�
 Hệ thống tích hợp AI ChatBot sử dụng mô hình ngôn ngữ (OpenAI/DeepSeek) để hỗ trợ người dùng tra cứu và phản hồi tự động.
 
 Hướng dẫn chạy dự án:
+(Sửa mật khẩu database trong application.properties)
 1. clone dự án
 2. Checkout sang nhánh develop: git checkout develop
 3. Chạy dự án
-  
+
