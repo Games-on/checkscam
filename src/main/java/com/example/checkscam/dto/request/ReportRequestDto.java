@@ -17,7 +17,7 @@ public class ReportRequestDto {
     private String description;
     private Integer status;
     private Integer type;
-    private Integer idScamTypeAfterHandle;
+    private Long idScamTypeAfterHandle;
     private String emailAuthorReport;
     private String reason;
     private String infoDescription;

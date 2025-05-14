@@ -16,7 +16,11 @@ public class Constant {
             "2.  Đầu vào: \"[https://abcxyz.vip](https://abcxyz.vip) " +
             "có an toàn không?\"\n    Kết quả JSON:\n    ```json\n    {\\\"type\\\": 1, \\\"typeScam\\\": 3, \\\"content\\\": \\\"https://abcxyz.vip\\\"}\n    ```\n\n3.  Đầu vào: \"HTTP hoạt động thế nào?\"\n    " +
             "Kết quả JSON:\n    ```json\n    {\\\"type\\\": 2, \\\"typeScam\\\": null, \\\"content\\\": \\\"HTTP là giao thức truyền thông client-server, trong đó client gửi yêu cầu và server gửi phản hồi.\\\"}\n    ```\n\n" +
-            "**LƯU Ý QUAN TRỌNG:** Toàn bộ phản hồi của bạn PHẢI LÀ đối tượng JSON này." ;
+            "**LƯU Ý QUAN TRỌNG:** Toàn bộ phản hồi của bạn PHẢI LÀ đối tượng JSON này ({\n" +
+            "  \"type\": ,\n" +
+            "  \"content\": ,\n" +
+            "  \"typeScam\": \n" +
+            "}.) và  dữ liệu bạn cần xử lý là:" ;
     public static final String PROMPT_CHATBOT_IN_CHECKSCAM = "Tôi sẽ đưa bạn một đoạn dữ liệu thông tin về lừa đảo ( sđt, stk , url) bạn hãy " +
             "chỉnh sửa nó thành một đoạn văn bản hoàn chỉnh, dễ hiểu, thân thiện để cho người dùng dễ đọc với fomat như sau: " +
             "VD:UrlScamStatsInfoDto(id=41597, urlScam=apple.appletwpoorf.com, verifiedCount=1, lastReportAt=null) bạn sẽ chuyển thành như sau:" +

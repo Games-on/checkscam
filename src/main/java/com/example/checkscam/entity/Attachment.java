@@ -1,6 +1,7 @@
 package com.example.checkscam.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,7 @@ public class Attachment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "news_id")
+    @JsonBackReference(value = "news-attachments")
     private News news;
 }
 

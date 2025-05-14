@@ -13,7 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -54,9 +56,11 @@ public class RestUserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long id) {
         this.userService.handleDeleteUser(id);
-        return ResponseEntity.ok("User deleted successfully");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "User deleted successfully");
+        return ResponseEntity.ok(response);
     }
 
     // fetch user by id
