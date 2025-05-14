@@ -2,6 +2,8 @@ package com.example.checkscam.rest;
 
 import com.example.checkscam.component.LocalizationUtils;
 import com.example.checkscam.constant.MessageKeys;
+import com.example.checkscam.dto.MonthlyReportStatsDto;
+import com.example.checkscam.dto.YearlyReportStatsDto;
 import com.example.checkscam.dto.request.HandleReportRequestDto;
 import com.example.checkscam.dto.request.ReportRequestDto;
 import com.example.checkscam.dto.response.ReportResponseDto;
@@ -137,5 +139,19 @@ public class RestReportController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Không thể tải ảnh");
         }
+    }
+
+    @GetMapping("/monthly")
+    public ResponseEntity<List<MonthlyReportStatsDto>> getMonthlyStats(
+            @RequestParam int year
+    ) {
+        List<MonthlyReportStatsDto> stats = reportService.getMonthlyStats(year);
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/yearly")
+    public ResponseEntity<List<YearlyReportStatsDto>> getYearlyStats() {
+        List<YearlyReportStatsDto> stats = reportService.getYearlyStats();
+        return ResponseEntity.ok(stats);
     }
 }

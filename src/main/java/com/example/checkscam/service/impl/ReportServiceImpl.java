@@ -5,6 +5,8 @@ import com.example.checkscam.constant.ErrorCodeEnum;
 import com.example.checkscam.constant.ScamInfoType;
 import com.example.checkscam.constant.StatusReportEnum;
 import com.example.checkscam.dto.AttachmentDto;
+import com.example.checkscam.dto.MonthlyReportStatsDto;
+import com.example.checkscam.dto.YearlyReportStatsDto;
 import com.example.checkscam.dto.request.HandleReportRequestDto;
 import com.example.checkscam.dto.request.ReportRequestDto;
 import com.example.checkscam.dto.response.ReportResponseDto;
@@ -58,6 +60,7 @@ public class ReportServiceImpl implements ReportService {
     private final AttachmentMapper attachmentMapper;
 
     public static final int MAXIMUM_ATTACHMENTS_PER_REPORT = 5;
+
     @Override
     public ReportResponseDto createReport(ReportRequestDto request) {
         Report report = mapper.requestToEntity(request);
@@ -220,4 +223,13 @@ public class ReportServiceImpl implements ReportService {
         }
     }
 
+    @Override
+    public List<MonthlyReportStatsDto> getMonthlyStats(int year) {
+        return repository.findReportCountByMonth(year);
+    }
+
+    @Override
+    public List<YearlyReportStatsDto> getYearlyStats() {
+        return repository.findReportCountByYear();
+    }
 }

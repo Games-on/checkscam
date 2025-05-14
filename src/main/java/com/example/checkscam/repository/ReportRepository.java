@@ -1,5 +1,7 @@
 package com.example.checkscam.repository;
 
+import com.example.checkscam.dto.MonthlyReportStatsDto;
+import com.example.checkscam.dto.YearlyReportStatsDto;
 import com.example.checkscam.dto.response.ReportResponseDto;
 import com.example.checkscam.dto.search.ReportSearchDto;
 import com.example.checkscam.entity.Report;
@@ -88,4 +90,27 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             """
     )
     Page<ReportResponseDto> search(@Param("dto") ReportSearchDto dto, Pageable pageable);
+
+    @Query("""
+      SELECT new com.example.checkscam.dto.MonthlyReportStatsDto(
+        MONTH(r.dateReport),
+        COUNT(r)
+      )
+      FROM Report r
+      WHERE YEAR(r.dateReport) = :year
+      GROUP BY MONTH(r.dateReport)
+      ORDER BY MONTH(r.dateReport)
+    """)
+    List<MonthlyReportStatsDto> findReportCountByMonth(@Param("year") int year);
+
+    @Query("""
+      SELECT new com.example.checkscam.dto.YearlyReportStatsDto(
+        YEAR(r.dateReport),
+        COUNT(r)
+      )
+      FROM Report r
+      GROUP BY YEAR(r.dateReport)
+      ORDER BY YEAR(r.dateReport)
+    """)
+    List<YearlyReportStatsDto> findReportCountByYear();
 }

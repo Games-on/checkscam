@@ -1,6 +1,8 @@
 package com.example.checkscam.service;
 
 import com.example.checkscam.dto.AttachmentDto;
+import com.example.checkscam.dto.MonthlyReportStatsDto;
+import com.example.checkscam.dto.YearlyReportStatsDto;
 import com.example.checkscam.dto.request.HandleReportRequestDto;
 import com.example.checkscam.dto.request.ReportRequestDto;
 import com.example.checkscam.dto.response.ReportResponseDto;
@@ -37,4 +39,8 @@ public interface ReportService {
     Resource loadImage(String imageName) throws IOException;
 
     String getImageMimeType(String imageName) throws IOException;
+
+    List<MonthlyReportStatsDto> getMonthlyStats(int year);
+
+    List<YearlyReportStatsDto> getYearlyStats();
 }
