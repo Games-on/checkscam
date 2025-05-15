@@ -10,6 +10,4 @@ Hướng dẫn chạy dự án:
 1. clone dự án
 2. Checkout sang nhánh develop:
 3. Chạy dự án
-4. Sử dụng tài khoản Admin (username: admin@gmail.com; pass: 123456)
-5. Sử dụng tài khoản Collab (username: collab@gmail.com  pass: 123456)
 
