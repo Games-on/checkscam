@@ -60,8 +60,8 @@ public class NewsController {
 
     // PUT news
     @PutMapping("/{id}")
-    public ResponseEntity<News> updateNews(@PathVariable Long id, @RequestBody News news) {
-        News updatedNews = newsService.updateNews(id, new NewsRequestDto());
+    public ResponseEntity<News> updateNews(@PathVariable Long id, @RequestBody NewsRequestDto newsRequestDto) {
+        News updatedNews = newsService.updateNews(id, newsRequestDto);
         if (updatedNews != null) {
             return new ResponseEntity<>(updatedNews, HttpStatus.OK);
         } else {

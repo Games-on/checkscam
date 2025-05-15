@@ -62,6 +62,7 @@ public class NewsServiceImpl {
             updatedNews.setName(news.getName());
             updatedNews.setShortDescription(news.getShortDescription());
             updatedNews.setContent(news.getContent());
+            updatedNews.setAttachments(existingNews.get().getAttachments());
             return newsRepository.save(updatedNews); // Lưu bản ghi đã cập nhật
         } else {
             return null;

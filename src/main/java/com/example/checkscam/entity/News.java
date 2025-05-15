@@ -17,13 +17,10 @@ public class News extends BaseEntity {
 
     @Column(nullable = false)
     private String name;
-
     @Column(columnDefinition = "TEXT")
     private String shortDescription;
-
     @Column(columnDefinition = "TEXT")
     private String content;
-
     @OneToMany(mappedBy = "news")
     @JsonManagedReference(value = "news-attachments")
     private List<Attachment> attachments;
